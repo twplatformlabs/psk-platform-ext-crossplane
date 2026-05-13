@@ -71,8 +71,8 @@ jobs:
           destination: "roles/<<parameters.cluster-role>>/crossplane"
           repository-url: *config-repo
       - kube/write-to-github:
-          source: deploy-files/providerconfig/*
-          destination: "roles/<<parameters.cluster-role>>/crossplane/providerconfig"
+          source: deploy-files/resources/*
+          destination: "roles/<<parameters.cluster-role>>/crossplane/resources"
           repository-url: *config-repo
 
   # create platform-vault secret store:
