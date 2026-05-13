@@ -53,7 +53,39 @@ spec:
         duration: 30s
         factor: 2
         maxDuration: 5m
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crossplane-providerconfig
+  namespace: $argocd_namespace
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: psk-aws-control-plane-configuration
+
+  source:
+    repoURL: https://github.com/twplatformlabs/psk-aws-control-plane-configuration
+    targetRevision: HEAD
+    path: roles/$cluster_role/crossplane/providerconfig.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: crossplane-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 5m
 EOF
 
 cp deploy-templates/default-values.yaml deploy-files/default-values.yaml
 cp deploy-templates/$cluster_role-values.yaml deploy-files/$cluster_role-values.yaml
+cp deploy-templates/providerconfig.yaml deploy-files/providerconfig.yaml
