@@ -1,0 +1,190 @@
+version: 2.1
+
+orbs:
+  kube: twdps/kube-ops@2.1.0
+  op: twdps/onepassword@3.0.0
+  do: twdps/pipeline-events@5.4.0
+
+globals:
+  - &context platform
+  - &executor-image ghcr.io/twplatformlabs/circleci-eks-ops:alpine-2026.04.3
+  - &config-repo twplatformlabs/psk-aws-control-plane-configuration
+
+on-push-main: &on-push-main
+  branches:
+    only: /main/
+  tags:
+    ignore: /.*/
+
+on-tag-main: &on-tag-main
+  branches:
+    ignore: /.*/
+  tags:
+    only: /.*/
+
+commands:
+
+  set-environment:
+    description: generate environment credentials and configuration from templates
+    parameters:
+      cluster:
+        description: access cluster for testing
+        type: string
+    steps:
+      - op/env:
+          env-file: op.<< parameters.cluster >>.env
+      - kube/op-kubeconfig:
+          op-value: platform/<< parameters.cluster>>/kubeconfig-base64
+      - do/bash-functions
+
+  # integration-test:
+  #   description: run integration test of cert-manager
+  #   parameters:
+  #     cluster:
+  #       description: access cluster for testing
+  #       type: string
+  #     cluster-role:
+  #       description: cluster role to be tested
+  #       type: string
+  #   steps:
+  #     - run:
+  #         name: run integration test of cert-manager
+  #         command: bash scripts/integration_tests.sh << parameters.cluster >> << parameters.cluster-role >>
+
+jobs:
+
+  update crossplane deployment configuration:
+    docker:
+      - image: *executor-image
+    parameters:
+      cluster-role:
+        description: cluster role to be updated
+        type: string
+    steps:
+      - checkout
+      - op/env
+      - run:
+          name: generate application resource for role
+          command: bash scripts/generate_application_resource.sh << parameters.cluster-role >>
+      - kube/write-to-github:
+          source: deploy-files/*
+          destination: "roles/<<parameters.cluster-role>>/cert-manager"
+          repository-url: *config-repo
+
+  # create platform-vault secret store:
+  #   docker:
+  #     - image: *executor-image
+  #   parameters:
+  #     cluster:
+  #       description: access cluster for testing
+  #       type: string
+  #     cluster-role:
+  #       description: cluster role to be tested
+  #       type: string
+  #   steps:
+  #     - checkout
+  #     - set-environment:
+  #         cluster: << parameters.cluster >>
+  #     - run:
+  #         name: create platform-vault secret store
+  #         command: bash scripts/set_admin_vault.sh << parameters.cluster-role >>
+  #     - run:
+  #         name: test external-secrets-operator functional health
+  #         command: bash scripts/integration_tests.sh << parameters.cluster >> << parameters.cluster-role >>
+
+  # functional-tests:
+  #   docker:
+  #     - image: *executor-image
+  #   parameters:
+  #     cluster:
+  #       description: cluster to test
+  #       type: string
+  #     cluster-role:
+  #       description: cluster role to be tested
+  #       type: string
+  #   steps:
+  #     - checkout
+  #     - set-environment:
+  #         cluster: << parameters.cluster >>
+  #     - run:
+  #         name: run integration test of metrics-server
+  #         command: bash scripts/integration_tests.sh << parameters.cluster >> << parameters.cluster-role >>
+
+workflows:
+
+  deploy sandbox role configuration:
+    when:
+      not:
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+    jobs:
+      - update crossplane deployment configuration:
+          name: update sandbox configuration
+          context: *context
+          cluster-role: sandbox
+          filters: *on-push-main
+
+  #     - create platform-vault secret store:
+  #         name: create sandbox platform-vault secret store
+  #         context: *context
+  #         cluster: sbx-i01-aws-us-east-1
+  #         cluster-role: sandbox
+  #         requires:
+  #           - update sandbox configuration
+  #         filters: *on-push-main
+
+  # deploy production role configuration:
+  #   jobs:
+  #     - update external-secrets-operator deployment configuration:
+  #         name: update production configuration
+  #         context: *context
+  #         cluster-role: production
+  #         filters: *on-tag-main
+
+  #     - create platform-vault secret store:
+  #         name: create production platform-vault secret store
+  #         context: *context
+  #         cluster: prod-i01-aws-us-east-2
+  #         cluster-role: production
+  #         requires:
+  #           - update production configuration
+  #         filters: *on-tag-main
+
+  #     - do/gh-release:
+  #         name: generate release notes
+  #         context: *context
+  #         notes-from-file: release.md
+  #         include-commit-msg: true
+  #         before-release:
+  #           - op/env:
+  #               env-file: op.prod-i01-aws-us-east-2.env
+  #         requires:
+  #           - create production platform-vault secret store
+  #         filters: *on-tag-main
+
+  #     - do/schedule-pipeline:
+  #         name: schedule nightly functional tests
+  #         context: *context
+  #         scheduled-pipeline-name: nightly external-secrets operator functional test
+  #         scheduled-pipeline-description: |
+  #           Automatically triggers nightly run of functional-test job
+  #         hours-of-day: "[1]"
+  #         days-of-week: "[\"SUN\"]"
+  #         before-schedule:
+  #           - op/env:
+  #               env-file: op.prod-i01-aws-us-east-2.env
+  #         filters: *on-tag-main
+
+  # run nightly integration test:
+  #   when:
+  #     equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+  #   jobs:
+  #     - functional-tests:
+  #         name: nightly sbx-i01-aws-us-east-1 functional test
+  #         cluster: sbx-i01-aws-us-east-1
+  #         cluster-role: sandbox
+  #         context: *context
+  #     - functional-tests:
+  #         name: nightly prod-i01-aws-us-east-2 functional test
+  #         cluster: prod-i01-aws-us-east-2
+  #         cluster-role: production
+  #         context: *context
