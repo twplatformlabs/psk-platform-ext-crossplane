@@ -58,7 +58,7 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: crossplane-providerconfig
+  name: crossplane-configuration
   namespace: $argocd_namespace
   annotations:
     argocd.argoproj.io/sync-wave: "1"
