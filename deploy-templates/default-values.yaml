@@ -226,12 +226,4 @@ extraVolumeMountsCrossplane: {}
 # -- Add sidecar containers to the Crossplane pod. Supports template expressions.
 sidecarsCrossplane: []
 
-extraObjects:
-  - apiVersion: aws.upbound.io/v1beta1
-    kind: ProviderConfig
-    metadata:
-      name: podidentity
-      namespace: crossplane-system
-    spec:
-      credentials:
-        source: PodIdentity
+extraObjects: []
