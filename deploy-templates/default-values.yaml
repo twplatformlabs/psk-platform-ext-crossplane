@@ -100,7 +100,7 @@ webhooks:
 
 rbacManager:
   # -- Deploy the RBAC Manager pod and its required roles.
-  deploy: false
+  deploy: true
   # -- Don't install aggregated Crossplane ClusterRoles.
   skipAggregatedClusterRoles: false
   # -- The number of RBAC Manager pod `replicas` to deploy.
@@ -111,12 +111,18 @@ rbacManager:
   leaderElection: true
   # -- Add custom arguments to the RBAC Manager pod.
   args: []
-  # -- Add `nodeSelectors` to the RBAC Manager pod deployment.
-  nodeSelector: {}
-  # -- Add `tolerations` to the RBAC Manager pod deployment.
-  tolerations: []
-  # -- Add `affinities` to the RBAC Manager pod deployment.
+
+  nodeSelector:
+    nodegroup: management-arm-rkt-mng
+
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "management"
+      effect: "NoSchedule"
+
   affinity: {}
+  
   # -- Add `topologySpreadConstraints` to the RBAC Manager pod deployment.
   topologySpreadConstraints: []
 
