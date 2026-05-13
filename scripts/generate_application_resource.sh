@@ -89,4 +89,4 @@ EOF
 cp deploy-templates/default-values.yaml deploy-files/default-values.yaml
 cp deploy-templates/$cluster_role-values.yaml deploy-files/$cluster_role-values.yaml
 mkdir deploy-files/resources
-cp -r deploy-templates/resources deploy-files/resources/
+cp -r deploy-templates/resources/ deploy-files/resources/
