@@ -5,9 +5,13 @@ cluster_role=$1
 crossplane_chart_version=$(jq -er .crossplane_chart_version environments/$cluster_role.json)
 argocd_namespace=$(jq -er .argocd_namespace environments/$cluster_role.json)
 
+echo "Application resource and configuration files for crossplane"
+echo "crossplane chart version: $crossplane_chart_version"
+echo "creating deploy-files directory"
 mkdir deploy-files
 
 # update the application.yaml with the new chart version then stage the files for writing to the app-of-app config repo
+echo "generating application.yaml"
 cat <<EOF > deploy-files/application.yaml
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -85,8 +89,12 @@ spec:
         factor: 2
         maxDuration: 5m
 EOF
+cat deploy-files/application.yaml
 
-cp deploy-templates/default-values.yaml deploy-files/default-values.yaml
-cp deploy-templates/$cluster_role-values.yaml deploy-files/$cluster_role-values.yaml
+echo "copying default values"
+cp -v deploy-templates/default-values.yaml deploy-files/default-values.yaml
+cp -v deploy-templates/$cluster_role-values.yaml deploy-files/$cluster_role-values.yaml
+echo "create resources directory in deploy-files"
 mkdir deploy-files/resources
-cp -r deploy-templates/resources/ deploy-files/resources/
+echo "copying resource files - these will all be deployed by the crossplane-confniguration application resource"
+cp -rv deploy-templates/resources/ deploy-files/resources/
