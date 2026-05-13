@@ -38,7 +38,7 @@ commands:
       - do/bash-functions
 
   # integration-test:
-  #   description: run integration test of cert-manager
+  #   description: run integration test of crossplane
   #   parameters:
   #     cluster:
   #       description: access cluster for testing
@@ -48,7 +48,7 @@ commands:
   #       type: string
   #   steps:
   #     - run:
-  #         name: run integration test of cert-manager
+  #         name: run integration test of crossplane
   #         command: bash scripts/integration_tests.sh << parameters.cluster >> << parameters.cluster-role >>
 
 jobs:
@@ -68,7 +68,7 @@ jobs:
           command: bash scripts/generate_application_resource.sh << parameters.cluster-role >>
       - kube/write-to-github:
           source: deploy-files/*
-          destination: "roles/<<parameters.cluster-role>>/cert-manager"
+          destination: "roles/<<parameters.cluster-role>>/crossplane"
           repository-url: *config-repo
 
   # create platform-vault secret store:
