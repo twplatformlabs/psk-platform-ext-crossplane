@@ -68,7 +68,7 @@ spec:
   source:
     repoURL: https://github.com/twplatformlabs/psk-aws-control-plane-configuration
     targetRevision: HEAD
-    path: roles/$cluster_role/crossplane/providerconfig
+    path: roles/$cluster_role/crossplane/resources
   destination:
     server: https://kubernetes.default.svc
     namespace: crossplane-system
@@ -88,5 +88,5 @@ EOF
 
 cp deploy-templates/default-values.yaml deploy-files/default-values.yaml
 cp deploy-templates/$cluster_role-values.yaml deploy-files/$cluster_role-values.yaml
-mkdir deploy-files/providerconfig
-cp deploy-templates/providerconfig.yaml deploy-files/providerconfig/providerconfig.yaml
+mkdir deploy-files/resources
+cp deploy-templates/resources/* deploy-files/resources/*
