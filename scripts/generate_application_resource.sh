@@ -97,4 +97,4 @@ cp -v deploy-templates/$cluster_role-values.yaml deploy-files/$cluster_role-valu
 echo "create resources directory in deploy-files"
 mkdir deploy-files/resources
 echo "copying resource files - these will all be deployed by the crossplane-confniguration application resource"
-cp -rv deploy-templates/resources/ deploy-files/resources/
+cp -rv deploy-templates/resources/ deploy-files/
