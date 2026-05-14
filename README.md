@@ -61,6 +61,6 @@ kind: CrossplanePodIdentityAssociation
 metadata:
   name: crossplane-provider-eks
 spec:
-  serviceAccount: provider-aws-eks
+  serviceAccount: upbound-provider-aws-eks
   namespace: crossplane-system
 ```
