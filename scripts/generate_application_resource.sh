@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source bash-functions.sh
 
 cluster_role=$1
 

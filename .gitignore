@@ -3,3 +3,4 @@ deploy-templates/application.yaml
 deploy-files/
 test/*.yaml
 notes.yaml
+kubeconfig
