@@ -1,0 +1,10 @@
+apiVersion: v2
+name: psk-crossplane-resources
+description: |-
+  After Crossplane oeprator has been deplyed, this chart manages deploying the providers, compositions,
+  and other cutsom resources tha will make infrastructure elements available within the cluster.
+type: application
+version: 0.1.0
+maintainers:
+  - name: Thoughtworks, Inc.
+    url: https://github.com/twplatformlabs

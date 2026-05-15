@@ -1,0 +1,8 @@
+apiVersion: aws.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: podidentity
+  namespace: {{ .Values.namespace }}
+spec:
+  credentials:
+    source: PodIdentity

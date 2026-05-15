@@ -1,0 +1,14 @@
+{{- range .Values.providers.packages }}
+{{- $parts := splitList "/" . }}
+{{- $withVersion := printf "%s-%s" (index $parts 1) (index $parts 2) }}
+{{- $name := $withVersion | splitList ":" | first }}
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: {{ $name }}
+spec:
+  package: {{ . }}
+  installConditionPolicy: NotFound
+  packagePullPolicy: Always
+{{- end }}
