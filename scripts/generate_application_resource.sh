@@ -108,4 +108,4 @@ cat deploy-files/crossplane-aws/application.yaml
 echo "copying default values"
 cp -v deploy-templates/default-values.yaml deploy-files/crossplane/default-values.yaml
 cp -v deploy-templates/$cluster_role-values.yaml deploy-files/crossplane/$cluster_role-values.yaml
-cp -v deploy-templates/crossplane-aws/aws-default-values.yaml deploy-files/crossplane-aws/aws-default-values.yaml
+cp -v deploy-templates/aws-default-values.yaml deploy-files/crossplane-aws/aws-default-values.yaml
