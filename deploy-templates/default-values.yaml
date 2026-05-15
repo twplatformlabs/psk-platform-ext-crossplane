@@ -58,10 +58,10 @@ args: []
 
 provider:
   # -- A list of Provider packages to install.
-  packages:
-    - xpkg.upbound.io/upbound/provider-family-aws:v2.5.3
-    - xpkg.upbound.io/upbound/provider-aws-iam:v2.5.3
-    - xpkg.upbound.io/upbound/provider-aws-eks:v2.5.3
+  packages: []
+    # - xpkg.upbound.io/upbound/provider-family-aws:v2.5.3
+    # - xpkg.upbound.io/upbound/provider-aws-iam:v2.5.3
+    # - xpkg.upbound.io/upbound/provider-aws-eks:v2.5.3
   # -- Define entries for the default managed resource activation policy. If defined, a default MRAP will contain these activations.
   defaultActivations: ["*"]
 
@@ -71,10 +71,10 @@ configuration:
 
 function:
   # -- A list of Function packages to install
-  packages:
-    - xpkg.upbound.io/crossplane-contrib/function-patch-and-transform:v0.10.4
-    - xpkg.upbound.io/crossplane-contrib/function-go-templating:v0.12.0
-    - xpkg.crossplane.io/crossplane-contrib/function-extra-resources:v0.3.0
+  packages: []
+    # - xpkg.upbound.io/crossplane-contrib/function-patch-and-transform:v0.10.4
+    # - xpkg.upbound.io/crossplane-contrib/function-go-templating:v0.12.0
+    # - xpkg.crossplane.io/crossplane-contrib/function-extra-resources:v0.3.0
 
 # -- The imagePullSecret names to add to the Crossplane ServiceAccount.
 imagePullSecrets: []

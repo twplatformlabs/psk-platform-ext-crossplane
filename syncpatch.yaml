@@ -1,6 +1,0 @@
-operation:
-  initiatedBy:
-    username: "ncheneweth"
-  sync:
-    syncStrategy:
-      hook: {}
