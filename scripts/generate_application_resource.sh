@@ -8,12 +8,14 @@ argocd_namespace=$(jq -er .argocd_namespace environments/$cluster_role.json)
 
 echo "Application resource and configuration files for crossplane"
 echo "crossplane chart version: $crossplane_chart_version"
-echo "creating deploy-files directory"
+echo "creating deploy-files directory for all the files that will written to psk-platform-control-plane-configuration repository"
 mkdir deploy-files
+mkdir deploy-files/crossplane
+mkdir deploy-files/crossplane-aws
 
-# update the application.yaml with the new chart version then stage the files for writing to the app-of-app config repo
+# generate application.yaml for both Applications then stage the files for writing to the app-of-app config repo
 echo "generating application.yaml"
-cat <<EOF > deploy-files/application.yaml
+cat <<EOF > deploy-files/crossplane/application.yaml
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -58,22 +60,33 @@ spec:
         duration: 30s
         factor: 2
         maxDuration: 5m
+EOF
+cat deploy-files/crossplane/application.yaml
 
+cat <<EOF > deploy-files/crossplane-aws/application.yaml
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: crossplane-configuration
+  name: crossplane-aws
   namespace: $argocd_namespace
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
   project: psk-aws-control-plane-configuration
 
   source:
-    repoURL: https://github.com/twplatformlabs/psk-aws-control-plane-configuration
-    targetRevision: HEAD
-    path: roles/$cluster_role/crossplane/resources
+    - repoURL: https://github.com/twplatformlabs/psk-platform-ext-crossplane/chart
+      chart: crossplane-aws
+      targetRevision: HEAD
+      helm:
+        valueFiles:
+          - \$config/roles/$cluster_role/crossplane-aws/aws-default-values.yaml
+    - repoURL: https://github.com/twplatformlabs/psk-aws-control-plane-configuration
+      targetRevision: HEAD
+      ref: config
   destination:
     server: https://kubernetes.default.svc
     namespace: crossplane-system
@@ -90,12 +103,9 @@ spec:
         factor: 2
         maxDuration: 5m
 EOF
-cat deploy-files/application.yaml
+cat deploy-files/crossplane-aws/application.yaml
 
 echo "copying default values"
-cp -v deploy-templates/default-values.yaml deploy-files/default-values.yaml
-cp -v deploy-templates/$cluster_role-values.yaml deploy-files/$cluster_role-values.yaml
-echo "create resources directory in deploy-files"
-mkdir deploy-files/resources
-echo "copying resource files - these will all be deployed by the crossplane-confniguration application resource"
-cp -rv deploy-templates/resources/ deploy-files/
+cp -v deploy-templates/default-values.yaml deploy-files/crossplane/default-values.yaml
+cp -v deploy-templates/$cluster_role-values.yaml deploy-files/crossplane/$cluster_role-values.yaml
+cp -v deploy-templates/crossplane-aws/aws-default-values.yaml deploy-files/crossplane-aws/aws-default-values.yaml
