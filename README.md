@@ -37,7 +37,7 @@ flowchart LR
     subgraph AWS Account
         subgraph EKS Control Plane
             subgraph ns:crossplane-system
-                CP[Crossplane operator]
+                CP[Crossplane]
                 PRO@{ shape: procs, label: "AWS providers"}
                 COMP@{ shape: procs, label: "compositions, xdr, etc"}
             end

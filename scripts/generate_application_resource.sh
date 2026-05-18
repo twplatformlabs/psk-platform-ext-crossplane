@@ -77,7 +77,7 @@ metadata:
 spec:
   project: psk-aws-control-plane-configuration
 
-  source:
+  sources:
     - repoURL: https://github.com/twplatformlabs/psk-platform-ext-crossplane/chart
       chart: crossplane-aws
       targetRevision: HEAD
