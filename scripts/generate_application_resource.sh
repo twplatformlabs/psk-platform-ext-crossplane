@@ -78,8 +78,8 @@ spec:
   project: psk-aws-control-plane-configuration
 
   sources:
-    - repoURL: https://github.com/twplatformlabs/psk-platform-ext-crossplane/chart
-      chart: crossplane-aws
+    - repoURL: https://github.com/twplatformlabs/psk-platform-ext-crossplane
+      path: chart/crossplane-aws
       targetRevision: HEAD
       helm:
         valueFiles:
