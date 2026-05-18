@@ -4,3 +4,4 @@ deploy-files/
 test/*.yaml
 notes.yaml
 source.env
+del-resource.sh
