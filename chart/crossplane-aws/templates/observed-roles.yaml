@@ -1,0 +1,24 @@
+---
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: Role
+metadata:
+  name: psk-crossplane-provider-role
+  annotations:
+    crossplane.io/external-name: PSKCrossplaneProviderRole
+spec:
+  managementPolicies: ["Observe"]
+  forProvider:
+    path: /PSKRoles/
+    assumeRolePolicy: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": { "Service": "pods.eks.amazonaws.com" },
+            "Action": ["sts:AssumeRole", "sts:TagSession"]
+          }
+        ]
+      }
+  providerConfigRef:
+    name: podidentity

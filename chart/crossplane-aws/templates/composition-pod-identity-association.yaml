@@ -1,0 +1,60 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: pod-identity-association
+spec:
+  compositeTypeRef:
+    apiVersion: platform.psk.io/v1alpha1
+    kind: XPodIdentityAssociation
+  mode: Pipeline
+  pipeline:
+    - step: fetch-cluster-info
+      functionRef:
+        name: crossplane-contrib-function-extra-resources
+      input:
+        apiVersion: extra-resources.fn.crossplane.io/v1beta1
+        kind: Input
+        spec:
+          extraResources:
+            - kind: ConfigMap
+              apiVersion: v1
+              into: clusterInfo
+              namespace: default
+              type: Selector
+              selector:
+                maxMatch: 1
+                minMatch: 1
+                matchLabels:
+                  - key: platform.psk.io/config
+                    type: Value
+                    value: cluster-info
+
+    - step: render-pod-identity-association
+      functionRef:
+        name: crossplane-contrib-function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |
+            {{- $cm := index .context "apiextensions.crossplane.io/extra-resources" "clusterInfo" 0 -}}
+            {{- $region := index $cm.data "region" -}}
+            {{- $clusterName := index $cm.data "clusterName" -}}
+            apiVersion: eks.aws.upbound.io/v1beta1
+            kind: PodIdentityAssociation
+            metadata:
+              name: {{ .observed.composite.resource.metadata.name }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: pod-identity-association
+            spec:
+              forProvider:
+                region: {{ $region }}
+                clusterName: {{ $clusterName }}
+                namespace: {{ .observed.composite.resource.spec.serviceAccountNamespace }}
+                serviceAccount: {{ .observed.composite.resource.spec.serviceAccountName }}
+                roleArnRef:
+                  name: {{ .observed.composite.resource.spec.roleName }}
+              providerConfigRef:
+                name: podidentity

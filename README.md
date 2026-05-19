@@ -95,3 +95,7 @@ function:
     - xpkg.upbound.io/crossplane-contrib/function-go-templating:v0.12.0
     - xpkg.crossplane.io/crossplane-contrib/function-extra-resources:v0.3.0
 ```
+
+### functional testing
+
+The post-deployment functional testing obviously needs to run against specific clusters. With the actual small scale of the psk lab clusters we just demonstrate the testing directly. In a higher scale setting, this is where a global list of clusers and roles would assist in triggering a dedicated test pipeline that could perform parallel testing across role clusters.

@@ -5,3 +5,4 @@ test/*.yaml
 notes.yaml
 source.env
 del-resource.sh
+temp/
