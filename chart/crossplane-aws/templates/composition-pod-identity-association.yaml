@@ -39,22 +39,22 @@ spec:
         source: Inline
         inline:
           template: |
-            {{- $cm := index .context "apiextensions.crossplane.io/extra-resources" "clusterInfo" 0 -}}
-            {{- $region := index $cm.data "region" -}}
-            {{- $clusterName := index $cm.data "clusterName" -}}
+            {{`{{- $cm := index .context "apiextensions.crossplane.io/extra-resources" "clusterInfo" 0 -}}`}}
+            {{`{{- $region := index $cm.data "region" -}}`}}
+            {{`{{- $clusterName := index $cm.data "clusterName" -}}`}}
             apiVersion: eks.aws.upbound.io/v1beta1
             kind: PodIdentityAssociation
             metadata:
-              name: {{ .observed.composite.resource.metadata.name }}
+              name: {{`{{ .observed.composite.resource.metadata.name }}`}}
               annotations:
                 gotemplating.fn.crossplane.io/composition-resource-name: pod-identity-association
             spec:
               forProvider:
-                region: {{ $region }}
-                clusterName: {{ $clusterName }}
-                namespace: {{ .observed.composite.resource.spec.serviceAccountNamespace }}
-                serviceAccount: {{ .observed.composite.resource.spec.serviceAccountName }}
+                region: {{`{{ $region }}`}}
+                clusterName: {{`{{ $clusterName }}`}}
+                namespace: {{`{{ .observed.composite.resource.spec.serviceAccountNamespace }}`}}
+                serviceAccount: {{`{{ .observed.composite.resource.spec.serviceAccountName }}`}}
                 roleArnRef:
-                  name: {{ .observed.composite.resource.spec.roleName }}
+                  name: {{`{{ .observed.composite.resource.spec.roleName }}`}}
               providerConfigRef:
                 name: podidentity
