@@ -1,15 +1,5 @@
 ---
-apiVersion: platform.psk.io/v1alpha1
-kind: PodIdentityAssociation
-metadata:
-  name: provider-aws-iam-pod-identity-association
-  namespace: {{ .Values.namespace }}
-spec:
-  serviceAccountName: upbound-provider-aws-iam
-  serviceAccountNamespace: crossplane-system
-  roleName: psk-crossplane-provider-role
-
----
+# add eks-pod-identity-association
 apiVersion: platform.psk.io/v1alpha1
 kind: PodIdentityAssociation
 metadata:
