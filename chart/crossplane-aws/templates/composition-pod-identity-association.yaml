@@ -67,7 +67,7 @@ metadata:
 spec:
   compositeTypeRef:
     apiVersion: platform.psk.io/v1alpha1
-    kind: XPodIdentityAssociation
+    kind: PodIdentityAssociation
   mode: Pipeline
   pipeline:
     - step: fetch-cluster-info
