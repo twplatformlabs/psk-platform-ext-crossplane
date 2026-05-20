@@ -1,44 +1,21 @@
-  ---
-  apiVersion: eks.psk.io/v1alpha1
-  kind: XPodIdentityAssociation
-  metadata:
-    name: provider-aws-iam-pod-identity-association
-    namespace: crossplane-system
-  spec:
-    serviceAccountName: upbound-provider-aws-iam
-    serviceAccountNamespace: crossplane-system
-    roleName: psk-crossplane-provider-role
+---
+apiVersion: platform.psk.io/v1alpha1
+kind: XPodIdentityAssociation
+metadata:
+  name: provider-aws-iam-pod-identity-association
+  namespace: crossplane-system
+spec:
+  serviceAccountName: upbound-provider-aws-iam
+  serviceAccountNamespace: crossplane-system
+  roleName: psk-crossplane-provider-role
 
-  ---
-  apiVersion: eks.psk.io/v1alpha1
-  kind: XPodIdentityAssociation
-  metadata:
-    name: provider-aws-eks-pod-identity-association
-    namespace: crossplane-system
-  spec:
-    serviceAccountName: upbound-provider-aws-eks
-    serviceAccountNamespace: crossplane-system
-    roleName: psk-crossplane-provider-role
-
-
-
-
-# apiVersion: eks.aws.upbound.io/v1beta1
-# kind: PodIdentityAssociation
-# metadata:
-#   name: crossplane-test-pod-identity
-# spec:
-#   forProvider:
-#     region: us-east-1
-#     clusterNameSelector:
-#       clusterName: my-eks-cluster
-#     namespace: default
-#     serviceAccount: test-sa
-#     roleArnSelector:
-#       matchLabels:
-#         role: crossplane-test-role
-#     tags:
-#       Purpose: crossplane-test
-#       ManagedBy: crossplane
-#   providerConfigRef:
-#     name: podidentity
+---
+apiVersion: platform.psk.io/v1alpha1
+kind: XPodIdentityAssociation
+metadata:
+  name: provider-aws-eks-pod-identity-association
+  namespace: crossplane-system
+spec:
+  serviceAccountName: upbound-provider-aws-eks
+  serviceAccountNamespace: crossplane-system
+  roleName: psk-crossplane-provider-role
