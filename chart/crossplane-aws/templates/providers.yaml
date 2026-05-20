@@ -10,4 +10,43 @@ metadata:
 spec:
   package: {{ . }}
   packagePullPolicy: Always
+  runtimeConfigRef:
+    target: management-arm-runtime
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pdb-{{ $name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      pkg.crossplane.io/provider: {{ $name }}
 {{- end }}
+
+---
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: management-node-selector
+spec:
+  deploymentTemplate:
+    spec:
+      template:
+        spec:
+          nodeSelector:
+            nodegroup: management-arm-rkt-mng
+          tolerations:
+            - key: dedicated
+              operator: Equal
+              value: management
+              effect: NoSchedule
+          securityContext:
+            runAsUser: 65532
+            runAsGroup: 65532
+            runAsNonRoot: true
+            fsGroup: 65532
+            seccompProfile:
+              type: RuntimeDefault
