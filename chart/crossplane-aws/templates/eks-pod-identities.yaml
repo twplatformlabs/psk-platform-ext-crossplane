@@ -1,9 +1,9 @@
 ---
 apiVersion: platform.psk.io/v1alpha1
-kind: XPodIdentityAssociation
+kind: PodIdentityAssociation
 metadata:
   name: provider-aws-iam-pod-identity-association
-  namespace: crossplane-system
+  namespace: {{ .Values.namespace }}
 spec:
   serviceAccountName: upbound-provider-aws-iam
   serviceAccountNamespace: crossplane-system
@@ -11,10 +11,10 @@ spec:
 
 ---
 apiVersion: platform.psk.io/v1alpha1
-kind: XPodIdentityAssociation
+kind: PodIdentityAssociation
 metadata:
   name: provider-aws-eks-pod-identity-association
-  namespace: crossplane-system
+  namespace: {{ .Values.namespace }}
 spec:
   serviceAccountName: upbound-provider-aws-eks
   serviceAccountNamespace: crossplane-system

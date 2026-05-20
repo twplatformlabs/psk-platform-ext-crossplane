@@ -2,13 +2,13 @@
 apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
-  name: xpodidentityassociations.platform.psk.io
+  name: podidentityassociations.platform.psk.io
 spec:
   scope: Namespaced
   group: platform.psk.io
   names:
-    kind: XPodIdentityAssociation
-    plural: xpodidentityassociations
+    kind: PodIdentityAssociation
+    plural: podidentityassociations
   versions:
     - name: v1alpha1
       served: true
