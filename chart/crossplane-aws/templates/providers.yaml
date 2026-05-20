@@ -11,14 +11,14 @@ spec:
   package: {{ . }}
   packagePullPolicy: Always
   runtimeConfigRef:
-    target: management-node-selector
+    name: management-node-selector
 
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: pdb-{{ $name }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ $.Values.namespace }}
 spec:
   maxUnavailable: 1
   selector:
