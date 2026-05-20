@@ -1,0 +1,24 @@
+---
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: management-node-selector
+spec:
+  deploymentTemplate:
+    spec:
+      template:
+        spec:
+          nodeSelector:
+            nodegroup: management-arm-rkt-mng
+          tolerations:
+            - key: dedicated
+              operator: Equal
+              value: management
+              effect: NoSchedule
+          securityContext:
+            runAsUser: 65532
+            runAsGroup: 65532
+            runAsNonRoot: true
+            fsGroup: 65532
+            seccompProfile:
+              type: RuntimeDefault
