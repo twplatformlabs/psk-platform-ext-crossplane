@@ -57,7 +57,7 @@ leaderElection: true
 args: []
 
 provider:
-  # -- A list of Provider packages to install.
+  # -- providers installed as separate resources in the crossplane-aws helm chart
   packages: []
     # - xpkg.upbound.io/upbound/provider-family-aws:v2.5.3
     # - xpkg.upbound.io/upbound/provider-aws-iam:v2.5.3
@@ -228,4 +228,24 @@ extraVolumeMountsCrossplane: {}
 # -- Add sidecar containers to the Crossplane pod. Supports template expressions.
 sidecarsCrossplane: []
 
-extraObjects: []
+extraObjects:
+  - apiVersion: policy/v1
+    kind: PodDisruptionBudget
+    metadata:
+      name: crossplane
+      namespace: crossplane-system
+    spec:
+      minAvailable: 1
+      selector:
+        matchLabels:
+          app: crossplane
+  - apiVersion: policy/v1
+    kind: PodDisruptionBudget
+    metadata:
+      name: crossplane-rbac-manager
+      namespace: crossplane-system
+    spec:
+      minAvailable: 1
+      selector:
+        matchLabels:
+          app: crossplane-rbac-manager
