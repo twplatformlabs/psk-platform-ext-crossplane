@@ -54,7 +54,8 @@ serviceAccount:
 # -- Enable [leader election](https://docs.crossplane.io/latest/guides/pods/#leader-election) for the Crossplane pod.
 leaderElection: true
 # -- Add custom arguments to the Crossplane pod.
-args: []
+args:
+  - --enable-deployment-runtime-configs
 
 provider:
   # -- providers installed as separate resources in the crossplane-aws helm chart
