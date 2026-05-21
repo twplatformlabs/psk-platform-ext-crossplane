@@ -101,6 +101,8 @@ function:
     - xpkg.upbound.io/crossplane-contrib/function-go-templating:v0.12.0
     - xpkg.crossplane.io/crossplane-contrib/function-extra-resources:v0.3.0
 ```
+All of these packages have a DeploymentRuntimeConfig that modifies the service account to be predictable so that an eks-pod-identity-association can be created for each provider or function added, along with toleration, node-selectors, and other deployment configuration changes. Note, a deploymemt can only have a single such runtime config associated with it.
+
 
 ### functional testing
 
