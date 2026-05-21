@@ -2,7 +2,7 @@
 apiVersion: pkg.crossplane.io/v1beta1
 kind: DeploymentRuntimeConfig
 metadata:
-  name: management-node-selector
+  name: enable-ess
 spec:
   deploymentTemplate:
     spec:
