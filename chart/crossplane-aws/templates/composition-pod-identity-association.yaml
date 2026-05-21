@@ -57,5 +57,6 @@ spec:
                 roleArnRef:
                   name: {{ .observed.composite.resource.spec.roleName }}
               providerConfigRef:
+                kind: ClusterProviderConfig
                 name: podidentity
             `}}
