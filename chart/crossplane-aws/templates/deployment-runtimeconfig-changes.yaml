@@ -1,0 +1,60 @@
+{{- $allPackages := concat .Values.providers.packages .Values.functions.packages }}
+{{- range $allPackages }}
+{{- $parts := splitList "/" . }}
+{{- $withVersion := printf "%s-%s" (index $parts 1) (index $parts 2) }}
+{{- $name := $withVersion | splitList ":" | first }}
+{{- $packageFind := . | splitList ":" | first }}
+---
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: {{ $name }}-deployment-changes
+spec:
+  serviceAccountTemplate:
+    metadata:
+      name: {{ $name }}
+  deploymentTemplate:
+    spec:
+      selector: {}
+      template:
+        spec:
+          containers:
+            - name: package-runtime
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 512Mi
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+          nodeSelector:
+            nodegroup: management-arm-rkt-mng
+          tolerations:
+            - key: dedicated
+              operator: Equal
+              value: management
+              effect: NoSchedule
+          securityContext:
+            runAsUser: 65532
+            runAsGroup: 65532
+            runAsNonRoot: true
+            fsGroup: 65532
+            seccompProfile:
+              type: RuntimeDefault
+
+---
+apiVersion: pkg.crossplane.io/v1beta1
+kind: ImageConfig
+metadata:
+  name: runtime-{{ $name }}
+spec:
+  matchImages:
+    - type: Prefix
+      prefix: {{ $packageFind }}
+  runtime:
+    configRef:
+      name: {{ $name }}-deployment-changes
+
+{{- end}}
+
+# renames the service accounts created providers and function to a predictable convention, rather the serialized number used by default
