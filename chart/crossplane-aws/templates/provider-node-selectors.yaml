@@ -9,6 +9,8 @@ spec:
       selector: {}
       template:
         spec:
+          containers:
+            - name: placeholder
           nodeSelector:
             nodegroup: management-arm-rkt-mng
           tolerations:
