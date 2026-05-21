@@ -42,7 +42,7 @@ spec:
             {{- $cm := index .context "apiextensions.crossplane.io/extra-resources" "clusterInfo" 0 -}}
             {{- $region := index $cm.data "region" -}}
             {{- $clusterName := index $cm.data "clusterName" -}}
-            apiVersion: eks.aws.upbound.io/v1beta1
+            apiVersion: eks.aws.m.upbound.io/v1beta1
             kind: PodIdentityAssociation
             metadata:
               name: {{ .observed.composite.resource.metadata.name }}
