@@ -61,3 +61,6 @@ spec:
                 kind: ClusterProviderConfig
                 name: podidentity
             `}}
+    - step: update-readiness
+      functionRef:
+        name: crossplane-contrib-function-auto-ready
