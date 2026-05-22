@@ -21,4 +21,5 @@ spec:
         ]
       }
   providerConfigRef:
+    kind: ClusterProviderConfig
     name: podidentity
