@@ -5,4 +5,4 @@ test/*.yaml
 notes.yaml
 source.env
 del-resource.sh
-temp/
+test/crossplane-provider-validation/fixture-eks-provider.yaml

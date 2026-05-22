@@ -1,0 +1,30 @@
+apiVersion: iam.aws.m.upbound.io/v1beta1
+kind: Role
+metadata:
+  name: integration-test-iam-role
+  namespace: default
+spec:
+  forProvider:
+    assumeRolePolicy: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "pods.eks.amazonaws.com"
+            },
+            "Action": [
+              "sts:AssumeRole",
+              "sts:TagSession"
+            ]
+          }
+        ]
+      }
+    description: "Test role to verify Crossplane AWS IAM provider is working"
+    tags:
+      Purpose: crossplane-test
+      ManagedBy: crossplane
+  providerConfigRef:
+    kind: ClusterProviderConfig
+    name: podidentity

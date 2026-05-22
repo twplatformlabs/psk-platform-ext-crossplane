@@ -13,3 +13,4 @@ functions:
     - xpkg.upbound.io/crossplane-contrib/function-patch-and-transform:v0.10.4
     - xpkg.upbound.io/crossplane-contrib/function-go-templating:v0.12.0
     - xpkg.crossplane.io/crossplane-contrib/function-extra-resources:v0.3.0
+    - xpkg.crossplane.io/crossplane-contrib/function-auto-ready:v0.6.5

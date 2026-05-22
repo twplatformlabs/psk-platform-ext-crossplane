@@ -77,6 +77,7 @@ Initial installed Functions:
 * function-patch-and-transform
 * function-go-templating
 * function-extra-resources
+* function-auto-ready
 
 As initially installed, crossplane is restricted from use to only cluster-administrators. This enables cluster configuration management to make use of crossplane features to provide capabilities for the control plane and for future developer "Users." THe future platform-provided infrastructure will make use of Crossplane Compositions to provider Developer access to infrastructure. In this way, crossplane can provision and maintain infrastructure on the developers behalf, subject to any policies or guardrails, and without needing to provider direct Developer access to crossplane operator capabilities.  
 

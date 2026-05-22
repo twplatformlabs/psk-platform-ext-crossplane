@@ -15,9 +15,8 @@ validate_argocore_helm_app_resource "$argocd_namespace" "crossplane" "$crossplan
 # run basic smoketest for crossplane operator and provider health
 bats test/crossplane-service-check.bats
 
-
 # Files that will be applied
-TEST_FILES=("test/fixture-configmap.yaml" "test/fixture-xrd.yaml" "test/fixture-composition.yaml" "test/fixture-claim.yaml")
+TEST_FILES=("test/fixture-role.yaml" "test/fixture-xrd-pod-identity-association.yaml")
 cleanup() {
   echo "Deleting test files..."
   for f in "${TEST_FILES[@]}"; do
@@ -27,29 +26,44 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# use test fixxtures to establish basic provider and function health
-# Apply the ConfigMap first so function-extra-resources has something to fetch
-kubectl apply -f test/fixture-configmap.yaml
+# Validate basic provider functionality
+kubectl apply -f test/crossplane-provider-validation/fixture-iam-provider.yaml
+cat <<EOF > test/crossplane-provider-validation/fixture-eks-provider.yaml
+apiVersion: eks.aws.m.upbound.io/v1beta1
+kind: PodIdentityAssociation
+metadata:
+  name: integration-test-eks-pod-identity
+spec:
+  forProvider:
+    region: us-east-1
+    clusterName: $clusterName
+    namespace: default
+    serviceAccount: integration-test-eks-pod-identity-sa
+    roleArnRef:
+      name: integration-test-iam-role
+      namespace: default
+  providerConfigRef:
+    kind: ClusterProviderConfig
+    name: podidentity
+EOF
+kubectl apply -f test/crossplane-provider-validation/fixture-eks-provider.yaml
+sleep 10
 
-# Install the XRD and Composition
-kubectl apply -f test/fixture-xrd.yaml
-kubectl apply -f test/fixture-composition.yaml
 
-# Wait a few seconds for the XRD to be established
-kubectl wait --for=condition=Established xrd/xcrossplanetests.test.example.org
+# use custom composition PodIdentityAssociation.platform.psk.io to provision an eks-pod-identity
+kubectl apply -f test/fixture-xrd-pod-identity-association.yaml
 
-# Fire the claim and wait 3 minutes
-kubectl apply -f test/fixture-claim.yaml
-sleep 180
 
 bats test/crossplane-fixture-validation.bats
 
-awsAssumeRole "${aws_account_id}" "${aws_assume_role}"
 
-if ROLE_ARN=$(aws iam get-role --role-name crossplane-smoke-test-templated \
-  --query 'Role.Arn' --output text 2>/dev/null); then
-  echo "✓ PASS: test fixture role found with ARN: $ROLE_ARN"
-else
-  echo "✗ FAIL: Role 'crossplane-smoke-test-templated' not found in AWS"
-  exit 1
-fi
+aws iam get-role --role-name PSKCrossplaneProviderRole
+
+crossplane-integration-test-role   the role to confirm exists
+
+
+aws eks list-pod-identity-associations \
+  --cluster-name sbx-i01-aws-us-east-1 \
+  --region us-east-1 \
+  --namespace default \
+  --service-account test-sa

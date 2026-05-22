@@ -1,0 +1,10 @@
+apiVersion: platform.psk.io/v1alpha1
+kind: PodIdentityAssociation
+metadata:
+  name: test-pod-identity-xrd
+  namespace: default
+spec:
+  serviceAccountName: test-sa
+  serviceAccountNamespace: default
+  roleName: integration-test-iam-role
+  roleNamespace: default
