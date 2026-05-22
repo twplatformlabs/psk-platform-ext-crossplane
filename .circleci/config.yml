@@ -75,44 +75,20 @@ jobs:
           destination: "roles/<<parameters.cluster-role>>/crossplane-aws"
           repository-url: *config-repo
 
-  # create platform-vault secret store:
-  #   docker:
-  #     - image: *executor-image
-  #   parameters:
-  #     cluster:
-  #       description: access cluster for testing
-  #       type: string
-  #     cluster-role:
-  #       description: cluster role to be tested
-  #       type: string
-  #   steps:
-  #     - checkout
-  #     - set-environment:
-  #         cluster: << parameters.cluster >>
-  #     - run:
-  #         name: create platform-vault secret store
-  #         command: bash scripts/set_admin_vault.sh << parameters.cluster-role >>
-  #     - run:
-  #         name: test external-secrets-operator functional health
-  #         command: bash scripts/integration_tests.sh << parameters.cluster >> << parameters.cluster-role >>
-
-  # functional-tests:
-  #   docker:
-  #     - image: *executor-image
-  #   parameters:
-  #     cluster:
-  #       description: cluster to test
-  #       type: string
-  #     cluster-role:
-  #       description: cluster role to be tested
-  #       type: string
-  #   steps:
-  #     - checkout
-  #     - set-environment:
-  #         cluster: << parameters.cluster >>
-  #     - run:
-  #         name: run integration test of metrics-server
-  #         command: bash scripts/integration_tests.sh << parameters.cluster >> << parameters.cluster-role >>
+  functional-tests:
+    docker:
+      - image: *executor-image
+    parameters:
+      cluster:
+        description: cluster to test
+        type: string
+    steps:
+      - checkout
+      - set-environment:
+          cluster: << parameters.cluster >>
+      - run:
+          name: run integration test of crossplane and customizations
+          command: bash scripts/integration_tests.sh << parameters.cluster >>
 
 workflows:
 
@@ -127,15 +103,14 @@ workflows:
           cluster-role: sandbox
           filters: *on-push-main
 
-  #     - create platform-vault secret store:
-  #         name: create sandbox platform-vault secret store
-  #         context: *context
-  #         cluster: sbx-i01-aws-us-east-1
-  #         cluster-role: sandbox
-  #         requires:
-  #           - update sandbox configuration
-  #         filters: *on-push-main
-
+      - functional-tests:
+          name: test sandbox cluster
+          context: *context
+          cluster: sbx-i01-aws-us-east-1
+          requires:
+            - update sandbox configuration
+          filters: *on-push-main
+  
   # deploy production role configuration:
   #   jobs:
   #     - update external-secrets-operator deployment configuration:

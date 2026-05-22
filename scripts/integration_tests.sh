@@ -16,7 +16,10 @@ validate_argocore_helm_app_resource "$argocd_namespace" "crossplane" "$crossplan
 bats test/crossplane-service-check.bats
 
 # Files that will be applied
-TEST_FILES=("test/fixture-role.yaml" "test/fixture-xrd-pod-identity-association.yaml")
+TEST_FILES=("test/crossplane-provider-validation/fixture-iam-provider.yaml" \
+            "test/crossplane-provider-validation/fixture-eks-provider.yaml" \
+            "test/crossplane-platform-feastures-validation/fixture-xrd-pod-identity-association.yaml")
+            
 cleanup() {
   echo "Deleting test files..."
   for f in "${TEST_FILES[@]}"; do
@@ -47,23 +50,18 @@ spec:
     name: podidentity
 EOF
 kubectl apply -f test/crossplane-provider-validation/fixture-eks-provider.yaml
+
+# validate platform feature compositions
+# eks-pod-identities
+kubectl apply -f test/fixture-xrd-pod-identity-association.yaml
 sleep 10
 
+# run k8s resource validation
+bats test/crossplane-provider-validation/k8s-resource-validation.bats
+bats test/crossplane-platform-features-validation/k8s-resource-validation.bats
 
-# use custom composition PodIdentityAssociation.platform.psk.io to provision an eks-pod-identity
-kubectl apply -f test/fixture-xrd-pod-identity-association.yaml
+# run aws api-check validation
+awsAssumeRole "${aws_account_id}" "${aws_assume_role}"
 
-
-bats test/crossplane-fixture-validation.bats
-
-
-aws iam get-role --role-name PSKCrossplaneProviderRole
-
-crossplane-integration-test-role   the role to confirm exists
-
-
-aws eks list-pod-identity-associations \
-  --cluster-name sbx-i01-aws-us-east-1 \
-  --region us-east-1 \
-  --namespace default \
-  --service-account test-sa
+CLUSTER_NAME=$cluster bats test/crossplane-provider-validation/aws-validation.bats
+CLUSTER_NAME=$cluster bats test/crossplane-platform-features-validation/aws-validation.bats
