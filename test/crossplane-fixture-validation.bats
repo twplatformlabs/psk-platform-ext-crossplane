@@ -12,3 +12,8 @@
   [[ "${output}" =~ "Running" ]]
 }
 
+
+on test/role.yaml to confirm 'create' role works
+k get roles.iam.aws.upbound.io crossplane-integration-test-role -o jsonpath='{.status.conditions[?(@.type=="Synced")].status}'
+ then also @.type=="Ready")].status}'
+

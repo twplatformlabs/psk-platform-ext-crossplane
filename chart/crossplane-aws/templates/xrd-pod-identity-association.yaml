@@ -33,6 +33,9 @@ spec:
                 roleName:
                   type: string
                   description: Metadata name of the Crossplane IAM Role managed resource whose ARN will be resolved via roleArnRef.
+                roleNamespace:
+                  type: string
+                  description: Metadata namespace of the Crossplane IAM Role managed resource whose ARN will be resolved via roleArnRef.
             status:
               type: object
               properties:

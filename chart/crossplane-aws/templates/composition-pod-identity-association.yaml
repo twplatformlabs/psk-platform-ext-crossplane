@@ -56,6 +56,7 @@ spec:
                 serviceAccount: {{ .observed.composite.resource.spec.serviceAccountName }}
                 roleArnRef:
                   name: {{ .observed.composite.resource.spec.roleName }}
+                  namespace: {{ .observed.composite.resource.spec.roleNamespace }}
               providerConfigRef:
                 kind: ClusterProviderConfig
                 name: podidentity
