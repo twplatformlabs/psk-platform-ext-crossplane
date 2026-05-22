@@ -88,10 +88,7 @@ jobs:
           cluster: << parameters.cluster >>
       - run:
           name: run integration test of crossplane and customizations
-          command: |
-            pwd
-            ls -la environments
-            bash scripts/integration_tests.sh << parameters.cluster >>
+          command: bash scripts/integration_tests.sh << parameters.cluster >>
 
 workflows:
 

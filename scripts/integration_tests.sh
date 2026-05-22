@@ -5,9 +5,9 @@ source bash-functions.sh
 cluster=$1
 argocd_namespace=$(jq -er .argocd_namespace environments/$cluster.json)
 crossplane_chart_version=$(jq -er .crossplane_chart_version environments/$cluster.json)
-aws_account_id=$(jq -er .aws_account_id "$cluster".auto.tfvars.json)
-aws_assume_role=$(jq -er .aws_assume_role "$cluster".auto.tfvars.json)
-export AWS_DEFAULT_REGION=$(jq -er .aws_region "$cluster".auto.tfvars.json)
+aws_account_id=$(jq -er .aws_account_id environments/"$cluster".auto.tfvars.json)
+aws_assume_role=$(jq -er .aws_assume_role environments/"$cluster".auto.tfvars.json)
+export AWS_DEFAULT_REGION=$(jq -er .aws_region environments/"$cluster".auto.tfvars.json)
 
 # confirm new version has been synced
 validate_argocore_helm_app_resource "$argocd_namespace" "crossplane" "$crossplane_chart_version"
@@ -19,7 +19,7 @@ bats test/crossplane-service-check.bats
 TEST_FILES=("test/crossplane-provider-validation/fixture-iam-provider.yaml" \
             "test/crossplane-provider-validation/fixture-eks-provider.yaml" \
             "test/crossplane-platform-feastures-validation/fixture-xrd-pod-identity-association.yaml")
-            
+
 cleanup() {
   echo "Deleting test files..."
   for f in "${TEST_FILES[@]}"; do
