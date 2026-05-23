@@ -4,8 +4,8 @@ source bash-functions.sh
 
 cluster=$1
 cluster_role=$2
-argocd_namespace=$(jq -er .argocd_namespace $cluster_role.json)
-crossplane_chart_version=$(jq -er .crossplane_chart_version $cluster_role.json)
+argocd_namespace=$(jq -er .argocd_namespace environments/$cluster_role.json)
+crossplane_chart_version=$(jq -er .crossplane_chart_version environments/$cluster_role.json)
 
 # confirm new version has been synced
 validate_argocore_helm_app_resource "$argocd_namespace" "crossplane" "$crossplane_chart_version"
