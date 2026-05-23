@@ -7,7 +7,7 @@ orbs:
 
 globals:
   - &context platform
-  - &executor-image ghcr.io/twplatformlabs/circleci-eks-ops:alpine-2026.04.3
+  - &executor-image ghcr.io/twplatformlabs/circleci-eks-ops:alpine-2026.05    #4.3
   - &config-repo twplatformlabs/psk-aws-control-plane-configuration
 
 on-push-main: &on-push-main
@@ -36,20 +36,6 @@ commands:
       - kube/op-kubeconfig:
           op-value: platform/<< parameters.cluster>>/kubeconfig-base64
       - do/bash-functions
-
-  # integration-test:
-  #   description: run integration test of crossplane
-  #   parameters:
-  #     cluster:
-  #       description: access cluster for testing
-  #       type: string
-  #     cluster-role:
-  #       description: cluster role to be tested
-  #       type: string
-  #   steps:
-  #     - run:
-  #         name: run integration test of crossplane
-  #         command: bash scripts/integration_tests.sh << parameters.cluster >> << parameters.cluster-role >>
 
 jobs:
 
@@ -82,13 +68,16 @@ jobs:
       cluster:
         description: cluster to test
         type: string
+      cluster-role:
+        description: cluster role to be updated
+        type: string
     steps:
       - checkout
       - set-environment:
           cluster: << parameters.cluster >>
       - run:
           name: run integration test of crossplane and customizations
-          command: bash scripts/integration_tests.sh << parameters.cluster >>
+          command: bash scripts/integration_tests.sh << parameters.cluster >> << parameters.cluster-role >>
 
 workflows:
 
@@ -107,6 +96,7 @@ workflows:
           name: test sandbox cluster
           context: *context
           cluster: sbx-i01-aws-us-east-1
+          cluster-role: sandbox
           requires:
             - update sandbox configuration
           filters: *on-push-main

@@ -3,9 +3,9 @@ set -euo pipefail
 source bash-functions.sh
 
 cluster=$1
-argocd_namespace=$(jq -er .argocd_namespace $cluster.json)
-crossplane_chart_version=$(jq -er .crossplane_chart_version $cluster.json)
-
+cluster_role=$2
+argocd_namespace=$(jq -er .argocd_namespace $cluster_role.json)
+crossplane_chart_version=$(jq -er .crossplane_chart_version $cluster_role.json)
 
 # confirm new version has been synced
 validate_argocore_helm_app_resource "$argocd_namespace" "crossplane" "$crossplane_chart_version"
@@ -50,12 +50,12 @@ spec:
 EOF
 kubectl apply -f test/crossplane-provider-validation/fixture-eks-provider.yaml
 sleep 5
+
 # validate platform feature compositions
 # eks-pod-identities
 kubectl apply -f test/crossplane-platform-features-validation/fixture-xrd-pod-identity-association.yaml
 sleep 5
 
-kubectl get podidentityassociation.eks.aws.m.upbound.io/integration-test-eks-pod-identity -n default -o yaml
 # run k8s resource validation
 bats test/crossplane-provider-validation/resource-validation.bats
 bats test/crossplane-platform-features-validation/resource-validation.bats
