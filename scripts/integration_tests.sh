@@ -1,16 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 source bash-functions.sh
-pwd
-ls -la environments
-cat environments/sbx-i01-aws-us-east-1.auto.tfvars.json
 
 cluster=$1
 argocd_namespace=$(jq -er .argocd_namespace environments/$cluster.json)
 crossplane_chart_version=$(jq -er .crossplane_chart_version environments/$cluster.json)
-aws_account_id=$(jq -er .aws_account_id environments/"$cluster".auto.tfvars.json)
-aws_assume_role=$(jq -er .aws_assume_role environments/"$cluster".auto.tfvars.json)
-export AWS_DEFAULT_REGION=$(jq -er .aws_region environments/"$cluster".auto.tfvars.json)
+aws_account_id=$(jq -er .aws_account_id environments/"$cluster".json)
+aws_assume_role=$(jq -er .aws_assume_role environments/"$cluster".json)
+export AWS_DEFAULT_REGION=$(jq -er .aws_region environments/"$cluster".json)
 
 # confirm new version has been synced
 validate_argocore_helm_app_resource "$argocd_namespace" "crossplane" "$crossplane_chart_version"
