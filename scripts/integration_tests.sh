@@ -49,12 +49,13 @@ spec:
     kind: ClusterProviderConfig
     name: podidentity
 EOF
+cat test/crossplane-provider-validation/fixture-eks-provider.yaml
 kubectl apply -f test/crossplane-provider-validation/fixture-eks-provider.yaml
-
+sleep 5
 # validate platform feature compositions
 # eks-pod-identities
 kubectl apply -f test/crossplane-platform-features-validation/fixture-xrd-pod-identity-association.yaml
-sleep 10
+sleep 5
 
 # run k8s resource validation
 bats test/crossplane-provider-validation/k8s-resource-validation.bats
