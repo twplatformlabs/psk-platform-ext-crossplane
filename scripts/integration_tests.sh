@@ -5,9 +5,7 @@ source bash-functions.sh
 cluster=$1
 argocd_namespace=$(jq -er .argocd_namespace $cluster.json)
 crossplane_chart_version=$(jq -er .crossplane_chart_version $cluster.json)
-aws_account_id=$(jq -er .aws_account_id "$cluster".json)
-aws_assume_role=$(jq -er .aws_assume_role "$cluster".json)
-export AWS_DEFAULT_REGION=$(jq -er .aws_region "$cluster".json)
+
 
 # confirm new version has been synced
 validate_argocore_helm_app_resource "$argocd_namespace" "crossplane" "$crossplane_chart_version"
@@ -59,11 +57,5 @@ sleep 5
 
 kubectl get podidentityassociation.eks.aws.m.upbound.io/integration-test-eks-pod-identity -n default -o yaml
 # run k8s resource validation
-bats test/crossplane-provider-validation/k8s-resource-validation.bats
-bats test/crossplane-platform-features-validation/k8s-resource-validation.bats
-
-# run aws api-check validation
-#awsAssumeRole "${aws_account_id}" "${aws_assume_role}"
-aws iam get-role --role-name integration-test-iam-role
-CLUSTER_NAME=$cluster bats test/crossplane-provider-validation/aws-validation.bats
-CLUSTER_NAME=$cluster bats test/crossplane-platform-features-validation/aws-validation.bats
+bats test/crossplane-provider-validation/resource-validation.bats
+bats test/crossplane-platform-features-validation/resource-validation.bats

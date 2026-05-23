@@ -86,9 +86,6 @@ jobs:
       - checkout
       - set-environment:
           cluster: << parameters.cluster >>
-      - op/tpl:
-          tpl-path: environments
-          tpl-file: << parameters.cluster >>.json
       - run:
           name: run integration test of crossplane and customizations
           command: bash scripts/integration_tests.sh << parameters.cluster >>
