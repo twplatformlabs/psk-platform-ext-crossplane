@@ -39,7 +39,7 @@ metadata:
 spec:
   forProvider:
     region: us-east-1
-    clusterName: $clusterName
+    clusterName: $CLUSTER_NAME
     namespace: default
     serviceAccount: integration-test-eks-pod-identity-sa
     roleArnRef:
