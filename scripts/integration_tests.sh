@@ -36,6 +36,7 @@ apiVersion: eks.aws.m.upbound.io/v1beta1
 kind: PodIdentityAssociation
 metadata:
   name: integration-test-eks-pod-identity
+  namespace: default
 spec:
   forProvider:
     region: us-east-1
