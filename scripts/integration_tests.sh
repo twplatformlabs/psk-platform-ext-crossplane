@@ -53,7 +53,7 @@ kubectl apply -f test/crossplane-provider-validation/fixture-eks-provider.yaml
 
 # validate platform feature compositions
 # eks-pod-identities
-kubectl apply -f test/fixture-xrd-pod-identity-association.yaml
+kubectl apply -f test/crossplane-platform-feastures-validation/fixture-xrd-pod-identity-association.yaml
 sleep 10
 
 # run k8s resource validation
