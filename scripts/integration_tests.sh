@@ -64,6 +64,6 @@ bats test/crossplane-platform-features-validation/k8s-resource-validation.bats
 
 # run aws api-check validation
 #awsAssumeRole "${aws_account_id}" "${aws_assume_role}"
-
+aws iam get-role --role-name integration-test-iam-role
 CLUSTER_NAME=$cluster bats test/crossplane-provider-validation/aws-validation.bats
 CLUSTER_NAME=$cluster bats test/crossplane-platform-features-validation/aws-validation.bats
