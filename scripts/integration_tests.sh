@@ -3,6 +3,7 @@ set -euo pipefail
 source bash-functions.sh
 pwd
 ls -la environments
+cat environments/sbx-i01-aws-us-east-1.auto.tfvars.json
 
 cluster=$1
 argocd_namespace=$(jq -er .argocd_namespace environments/$cluster.json)
