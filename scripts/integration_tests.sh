@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 source bash-functions.sh
+pwd
+ls -la environments
 
 cluster=$1
 argocd_namespace=$(jq -er .argocd_namespace environments/$cluster.json)
