@@ -48,6 +48,7 @@ spec:
     kind: ClusterProviderConfig
     name: podidentity
 EOF
+cat test/crossplane-provider-validation/fixture-eks-provider.yaml
 kubectl apply -f test/crossplane-provider-validation/fixture-eks-provider.yaml
 sleep 15
 
@@ -55,6 +56,9 @@ sleep 15
 # eks-pod-identities
 kubectl apply -f test/crossplane-platform-features-validation/fixture-xrd-pod-identity-association.yaml
 sleep 20
+
+kubectl get podidentityassociation.eks.aws.m.upbound.io integration-test-eks-pod-identity -n default -o jsonpath='{.status.conditions[?(@.type=="Synced")].status}'
+kubectl get podidentityassociation.eks.aws.m.upbound.io integration-test-eks-pod-identity -n default -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}'
 
 # run k8s resource validation
 bats test/crossplane-provider-validation/resource-validation.bats
