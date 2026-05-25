@@ -1,5 +1,5 @@
 {
-  "crossplane_chart_version": "2.3.0",
+  "crossplane_chart_version": "2.4.0",
   "argocd_namespace": "psk-system",
   "aws_region": "us-east-1"
 }
