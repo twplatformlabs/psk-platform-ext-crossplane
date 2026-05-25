@@ -6,6 +6,7 @@ cluster=$1
 cluster_role=$2
 argocd_namespace=$(jq -er .argocd_namespace environments/$cluster_role.json)
 crossplane_chart_version=$(jq -er .crossplane_chart_version environments/$cluster_role.json)
+region=$(jq -er .aws_region environments/$cluster_role.json)
 
 # confirm new version has been synced
 validate_argocore_helm_app_resource "$argocd_namespace" "crossplane" "$crossplane_chart_version"
@@ -37,7 +38,7 @@ metadata:
   namespace: default
 spec:
   forProvider:
-    region: us-east-1
+    region: $region
     clusterName: $cluster
     namespace: default
     serviceAccount: integration-test-eks-pod-identity-sa
