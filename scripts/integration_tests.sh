@@ -9,6 +9,8 @@ crossplane_chart_version=$(jq -er .crossplane_chart_version environments/$cluste
 region=$(jq -er .aws_region environments/$cluster_role.json)
 
 # confirm new version has been synced
+# rolling update requires some time
+sleep 60
 validate_argocore_helm_app_resource "$argocd_namespace" "crossplane" "$crossplane_chart_version"
 
 # run basic smoketest for crossplane operator and provider health
