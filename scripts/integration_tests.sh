@@ -49,12 +49,12 @@ spec:
     name: podidentity
 EOF
 kubectl apply -f test/crossplane-provider-validation/fixture-eks-provider.yaml
-sleep 5
+sleep 15
 
 # validate platform feature compositions
 # eks-pod-identities
 kubectl apply -f test/crossplane-platform-features-validation/fixture-xrd-pod-identity-association.yaml
-sleep 5
+sleep 20
 
 # run k8s resource validation
 bats test/crossplane-provider-validation/resource-validation.bats
