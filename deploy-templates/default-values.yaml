@@ -143,6 +143,7 @@ resourcesCrossplane:
     memory: 256Mi
 
 securityContextCrossplane:
+  runAsNonRoot: true
   # -- The user ID used by the Crossplane pod.
   runAsUser: 65532
   # -- The group ID used by the Crossplane pod.
@@ -183,6 +184,7 @@ resourcesRBACManager:
     memory: 256Mi
 
 securityContextRBACManager:
+  runAsNonRoot: true
   # -- The user ID used by the RBAC Manager pod.
   runAsUser: 65532
   # -- The group ID used by the RBAC Manager pod.
@@ -215,10 +217,14 @@ extraEnvVarsCrossplane: {}
 extraEnvVarsRBACManager: {}
 
 # -- Add a custom `securityContext` to the Crossplane pod.
-podSecurityContextCrossplane: {}
+podSecurityContextCrossplane:
+  seccompProfile:
+    type: RuntimeDefault
 
 # -- Add a custom `securityContext` to the RBAC Manager pod.
-podSecurityContextRBACManager: {}
+podSecurityContextRBACManager:
+  seccompProfile:
+    type: RuntimeDefault
 
 # -- Add custom `volumes` to the Crossplane pod. Supports template expressions.
 extraVolumesCrossplane: {}
