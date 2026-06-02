@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
+set -euo pipefail
 source bash-functions.sh
 
 cluster_role=$1
 
 crossplane_chart_version=$(jq -er .crossplane_chart_version environments/$cluster_role.json)
 argocd_namespace=$(jq -er .argocd_namespace environments/$cluster_role.json)
+
+# perform trivy scan of chart with role configuration.
+# ArgoCD Core will do the actual Helm install, this is just a pre-flight security review
+helm repo add crossplane https://charts.crossplane.io/stable
+helm repo update
+trivyScan "crossplane-stable/crossplane" "crossplane" "$crossplane_chart_version" "deploy-templates/default-values.yaml"
 
 echo "Application resource and configuration files for crossplane"
 echo "crossplane chart version: $crossplane_chart_version"
