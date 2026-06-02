@@ -11,7 +11,7 @@ argocd_namespace=$(jq -er .argocd_namespace environments/$cluster_role.json)
 # ArgoCD Core will do the actual Helm install, this is just a pre-flight security review
 helm repo add crossplane https://charts.crossplane.io/stable
 helm repo update
-trivyScan "crossplane-stable/crossplane" "crossplane" "$crossplane_chart_version" "deploy-templates/default-values.yaml"
+trivyScan "crossplane/crossplane" "crossplane" "$crossplane_chart_version" "deploy-templates/default-values.yaml"
 
 echo "Application resource and configuration files for crossplane"
 echo "crossplane chart version: $crossplane_chart_version"
