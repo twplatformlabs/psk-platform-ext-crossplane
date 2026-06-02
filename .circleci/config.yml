@@ -49,6 +49,7 @@ jobs:
     steps:
       - checkout
       - op/env
+      - do/bash-functions
       - run:
           name: generate application resource for role
           command: bash scripts/generate_application_resource.sh << parameters.cluster-role >>
