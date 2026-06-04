@@ -59,7 +59,7 @@ spec:
                   namespace: {{ .observed.composite.resource.spec.roleNamespace }}
               providerConfigRef:
                 kind: ClusterProviderConfig
-                name: podidentity
+                name: aws
             `}}
     - step: update-readiness
       functionRef:

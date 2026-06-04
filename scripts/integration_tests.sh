@@ -49,7 +49,7 @@ spec:
       namespace: default
   providerConfigRef:
     kind: ClusterProviderConfig
-    name: podidentity
+    name: aws
 EOF
 cat test/crossplane-provider-validation/fixture-eks-provider.yaml
 kubectl apply -f test/crossplane-provider-validation/fixture-eks-provider.yaml

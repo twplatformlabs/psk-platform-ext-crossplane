@@ -2,7 +2,7 @@
 apiVersion: aws.m.upbound.io/v1beta1
 kind: ClusterProviderConfig
 metadata:
-  name: podidentity
+  name: aws
 spec:
   credentials:
     source: PodIdentity
@@ -11,7 +11,7 @@ spec:
 apiVersion: aws.upbound.io/v1beta1
 kind: ProviderConfig
 metadata:
-  name: podidentity
+  name: aws
 spec:
   credentials:
     source: PodIdentity

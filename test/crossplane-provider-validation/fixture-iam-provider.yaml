@@ -27,4 +27,4 @@ spec:
       ManagedBy: crossplane
   providerConfigRef:
     kind: ClusterProviderConfig
-    name: podidentity
+    name: aws
