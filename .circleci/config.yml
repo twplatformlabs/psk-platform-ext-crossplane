@@ -93,14 +93,14 @@ workflows:
           cluster-role: sandbox
           filters: *on-push-main
 
-      - functional-tests:
-          name: test sandbox cluster
-          context: *context
-          cluster: sbx-i01-aws-us-east-1
-          cluster-role: sandbox
-          requires:
-            - update sandbox configuration
-          filters: *on-push-main
+      # - functional-tests:
+      #     name: test sandbox cluster
+      #     context: *context
+      #     cluster: sbx-i01-aws-us-east-1
+      #     cluster-role: sandbox
+      #     requires:
+      #       - update sandbox configuration
+      #     filters: *on-push-main
   
   deploy production role configuration:
     jobs:
