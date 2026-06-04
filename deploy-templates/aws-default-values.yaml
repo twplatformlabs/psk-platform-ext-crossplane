@@ -7,6 +7,7 @@ providers:
     - xpkg.upbound.io/upbound/provider-family-aws:v2.5.3
     - xpkg.upbound.io/upbound/provider-aws-iam:v2.5.3
     - xpkg.upbound.io/upbound/provider-aws-eks:v2.5.3
+    - xpkg.upbound.io/upbound/provider-aws-s3:v2.5.3
 
 functions:
   packages:
