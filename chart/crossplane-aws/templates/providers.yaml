@@ -1,4 +1,4 @@
-{{- range .Values.providers.packages }}
+{{- range concat (default list .Values.providers.packages) (default list .Values.providers.packagesaddassociations) }}
 {{- $parts := splitList "/" . }}
 {{- $withVersion := printf "%s-%s" (index $parts 1) (index $parts 2) }}
 {{- $name := $withVersion | splitList ":" | first }}

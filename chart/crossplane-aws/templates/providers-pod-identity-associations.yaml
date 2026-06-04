@@ -1,0 +1,22 @@
+{{- range .Values.providers.packagesaddassociations}}
+{{- $parts := splitList "/" . }}
+{{- $withVersion := printf "%s-%s" (index $parts 1) (index $parts 2) }}
+{{- $name := $withVersion | splitList ":" | first }}
+---
+apiVersion: platform.psk.io/v1alpha1
+kind: PodIdentityAssociation
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  serviceAccountName: {{ $name }}
+  serviceAccountNamespace: {{ $.Values.namespace }}
+  roleName: psk-crossplane-provider-role
+  roleNamespace: {{ $.Values.namespace }}
+
+{{- end }}
+
+
+
+
+
