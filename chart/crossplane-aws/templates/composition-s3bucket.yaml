@@ -60,7 +60,7 @@ spec:
               {{- $objectActions = append $objectActions "s3:PutObject" -}}
             {{- end -}}
             {{- if eq $access "readwritedelete" -}}
-              {{- $objectActions = append $objectActions "s3:DeleteObject" "s3:AbortMultipartUpload" -}}
+              {{- $objectActions = concat $objectActions "s3:DeleteObject" "s3:AbortMultipartUpload" -}}
             {{- end -}}
 
             {{- $trust := dict "Version" "2012-10-17" "Statement" (list (dict "Effect" "Allow" "Principal" (dict "Service" "pods.eks.amazonaws.com") "Action" (list "sts:AssumeRole" "sts:TagSession"))) -}}
