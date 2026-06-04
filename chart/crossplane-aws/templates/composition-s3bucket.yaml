@@ -118,7 +118,7 @@ spec:
                   namespace: {{ $ns }}
                 rule:
                   - applyServerSideEncryptionByDefault:
-                      - sseAlgorithm: AES256
+                      sseAlgorithm: AES256
               providerConfigRef:
                 kind: ClusterProviderConfig
                 name: aws
@@ -166,7 +166,7 @@ spec:
                   name: {{ $xrName }}
                   namespace: {{ $ns }}
                 versioningConfiguration:
-                  - status: Enabled
+                  status: Enabled
               providerConfigRef:
                 kind: ClusterProviderConfig
                 name: aws
