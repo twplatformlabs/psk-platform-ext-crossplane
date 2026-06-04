@@ -87,6 +87,7 @@ _pending_
 
 ## maintainers
 
+### providers
 to add a provider or function, modify the aws-default-values.yaml in the local `deploy-templates` folder.  
 ```yaml
 
@@ -107,3 +108,9 @@ All of these packages have a DeploymentRuntimeConfig that modifies the service a
 ### functional testing
 
 The post-deployment functional testing obviously needs to run against specific clusters. With the actual small scale of the psk lab clusters we just demonstrate the testing directly. In a higher scale setting, this is where a global list of clusers and roles would assist in triggering a dedicated test pipeline that could perform parallel testing across role clusters.
+
+### release versioning  
+
+In general the individual services or extensions managed through the distributed cluster configuration management via ARgoCD Core, will have release versions that map 1-to-1 with the chart version being deployed. For extensions that can additional customization as part of providing capabiltiies to the user (e.g., Istio, Crossplane, and so on), each sucessive update will use a trailing 4-digit semantic addition to indicate the release versions changes to those additional configurations.  
+
+In the case of Crossplane, the helm chart version could be 2.3.1 and this may the 18th release of the compositions and XRDs made available to platform Users - in which case the release version for this pipeline to production would be 2.3.1.0018  
