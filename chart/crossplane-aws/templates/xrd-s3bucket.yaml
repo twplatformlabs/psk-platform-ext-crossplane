@@ -2,13 +2,13 @@
 apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
-  name: s3bucketforsas.platform.psk.io
+  name: s3buckets.platform.psk.io
 spec:
   scope: Namespaced
   group: platform.psk.io
   names:
-    kind: S3BucketForSAs
-    plural: s3bucketforsas
+    kind: S3Bucket
+    plural: s3buckets
   versions:
     - name: v1alpha1
       served: true
@@ -36,6 +36,7 @@ spec:
                 expireAfterDays:
                   type: integer
                   description: Optional lifecycle expiration backstop (days).
+                  minimum: 0
                   default: 3
             status:
               type: object

@@ -1,0 +1,248 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: s3buckets
+spec:
+  compositeTypeRef:
+    apiVersion: platform.psk.io/v1alpha1
+    kind: S3Bucket
+  mode: Pipeline
+  pipeline:
+    - step: fetch-cluster-info
+      functionRef:
+        name: crossplane-contrib-function-extra-resources
+      input:
+        apiVersion: extra-resources.fn.crossplane.io/v1beta1
+        kind: Input
+        spec:
+          extraResources:
+            - kind: ConfigMap
+              apiVersion: v1
+              into: clusterInfo
+              namespace: default
+              type: Selector
+              selector:
+                maxMatch: 1
+                minMatch: 1
+                matchLabels:
+                  - key: platform.psk.io/config
+                    type: Value
+                    value: cluster-info
+    - step: render-resources
+      functionRef:
+        name: crossplane-contrib-function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |
+            {{`
+            {{- $cm := index .context "apiextensions.crossplane.io/extra-resources" "clusterInfo" 0 -}}
+            {{- $region := index $cm.data "region" -}}
+            {{- $clusterName := index $cm.data "clusterName" -}}
+            {{- $clusterShort := first (splitList "-" $clusterName) -}}
+            {{- $ns := .observed.composite.resource.metadata.namespace -}}
+            {{- $sa := .observed.composite.resource.spec.serviceAccountName -}}
+            {{- $xrName := .observed.composite.resource.metadata.name -}}
+            {{- $access := .observed.composite.resource.spec.access | default "readwritedelete" -}}
+            {{- $hash := .observed.composite.resource.metadata.uid | sha256sum | trunc 8 -}}
+            {{- $bucket := printf "%s-%s-%s-%s" $clusterShort $ns $sa $hash | lower | trunc 63 | trimSuffix "-" -}}
+            {{- $expire := .observed.composite.resource.spec.expireAfterDays | default 3 -}}
+            {{- $obs := .observed.resources | default dict -}}
+            {{- $roleArn := dig "role" "resource" "status" "atProvider" "arn" "" $obs -}}
+            {{- $assocId := dig "pod-identity-association" "resource" "status" "associationId" "" $obs -}}
+
+            {{- $objectActions := list "s3:GetObject" -}}
+            {{- $bucketActions := list "s3:ListBucket" "s3:GetBucketLocation" -}}
+            {{- if or (eq $access "readwrite") (eq $access "readwritedelete") -}}
+              {{- $objectActions = append $objectActions "s3:PutObject" -}}
+            {{- end -}}
+            {{- if eq $access "readwritedelete" -}}
+              {{- $objectActions = append $objectActions "s3:DeleteObject" "s3:AbortMultipartUpload" -}}
+            {{- end -}}
+
+            {{- $trust := dict "Version" "2012-10-17" "Statement" (list (dict "Effect" "Allow" "Principal" (dict "Service" "pods.eks.amazonaws.com") "Action" (list "sts:AssumeRole" "sts:TagSession"))) -}}
+            {{- $policy := dict "Version" "2012-10-17" "Statement" (list (dict "Sid" "Bucket" "Effect" "Allow" "Action" $bucketActions "Resource" (printf "arn:aws:s3:::%s" $bucket)) (dict "Sid" "Objects" "Effect" "Allow" "Action" $objectActions "Resource" (printf "arn:aws:s3:::%s/*" $bucket))) -}}
+            ---
+            apiVersion: s3.aws.m.upbound.io/v1beta1
+            kind: Bucket
+            metadata:
+              name: {{ $xrName }}
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: bucket
+                crossplane.io/external-name: {{ $bucket }}
+            spec:
+              forProvider:
+                region: {{ $region }}
+              providerConfigRef:
+                kind: ClusterProviderConfig
+                name: aws
+            ---
+            apiVersion: s3.aws.m.upbound.io/v1beta1
+            kind: BucketPublicAccessBlock
+            metadata:
+              name: {{ $xrName }}
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: public-access-block
+            spec:
+              forProvider:
+                region: {{ $region }}
+                bucketRef:
+                  name: {{ $xrName }}
+                  namespace: {{ $ns }}
+                blockPublicAcls: true
+                blockPublicPolicy: true
+                ignorePublicAcls: true
+                restrictPublicBuckets: true
+              providerConfigRef:
+                kind: ClusterProviderConfig
+                name: aws
+            ---
+            apiVersion: s3.aws.m.upbound.io/v1beta1
+            kind: BucketServerSideEncryptionConfiguration
+            metadata:
+              name: {{ $xrName }}
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: encryption
+            spec:
+              forProvider:
+                region: {{ $region }}
+                bucketRef:
+                  name: {{ $xrName }}
+                  namespace: {{ $ns }}
+                rule:
+                  - applyServerSideEncryptionByDefault:
+                      - sseAlgorithm: AES256
+              providerConfigRef:
+                kind: ClusterProviderConfig
+                name: aws
+            {{- if gt (int $expire) 0 }}
+            ---
+            apiVersion: s3.aws.m.upbound.io/v1beta1
+            kind: BucketLifecycleConfiguration
+            metadata:
+              name: {{ $xrName }}
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: lifecycle
+            spec:
+              forProvider:
+                region: {{ $region }}
+                bucketRef:
+                  name: {{ $xrName }}
+                  namespace: {{ $ns }}
+                rule:
+                  - id: expire
+                    status: Enabled
+                    expiration:
+                      - days: {{ $expire }}
+                    {{- if .observed.composite.resource.spec.versioning }}
+                    noncurrentVersionExpiration:
+                      - noncurrentDays: {{ $expire }}
+                    {{- end }}
+              providerConfigRef:
+                kind: ClusterProviderConfig
+                name: aws
+            {{- end }}
+            {{- if .observed.composite.resource.spec.versioning }}
+            ---
+            apiVersion: s3.aws.m.upbound.io/v1beta1
+            kind: BucketVersioning
+            metadata:
+              name: {{ $xrName }}
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: versioning
+            spec:
+              forProvider:
+                region: {{ $region }}
+                bucketRef:
+                  name: {{ $xrName }}
+                  namespace: {{ $ns }}
+                versioningConfiguration:
+                  - status: Enabled
+              providerConfigRef:
+                kind: ClusterProviderConfig
+                name: aws
+            {{- end }}
+            ---
+            apiVersion: iam.aws.m.upbound.io/v1beta1
+            kind: Role
+            metadata:
+              name: {{ $xrName }}
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: role
+            spec:
+              forProvider:
+                assumeRolePolicy: {{ $trust | toJson | quote }}
+              providerConfigRef:
+                kind: ClusterProviderConfig
+                name: aws
+            ---
+            apiVersion: iam.aws.m.upbound.io/v1beta1
+            kind: Policy
+            metadata:
+              name: {{ $xrName }}
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: policy
+            spec:
+              forProvider:
+                policy: {{ $policy | toJson | quote }}
+              providerConfigRef:
+                kind: ClusterProviderConfig
+                name: aws
+            ---
+            apiVersion: iam.aws.m.upbound.io/v1beta1
+            kind: RolePolicyAttachment
+            metadata:
+              name: {{ $xrName }}
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: role-policy-attachment
+            spec:
+              forProvider:
+                roleRef:
+                  name: {{ $xrName }}
+                  namespace: {{ $ns }}
+                policyArnRef:
+                  name: {{ $xrName }}
+                  namespace: {{ $ns }}
+              providerConfigRef:
+                kind: ClusterProviderConfig
+                name: aws
+            ---
+            apiVersion: platform.psk.io/v1alpha1
+            kind: PodIdentityAssociation
+            metadata:
+              name: {{ $xrName }}
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: pod-identity-association
+            spec:
+              serviceAccountName: {{ $sa }}
+              serviceAccountNamespace: {{ $ns }}
+              roleName: {{ $xrName }}
+              roleNamespace: {{ $ns }}
+            {{- $pobs := .observed.resources | default dict -}}
+            {{- $atp := dig "pod-identity-association" "resource" "status" "atProvider" dict $pobs -}}
+            {{- if $atp.associationId }}
+            ---
+            apiVersion: platform.psk.io/v1alpha1
+            kind: PodIdentityAssociation
+            metadata:
+              name: {{ .observed.composite.resource.metadata.name }}
+            status:
+              associationId: {{ $atp.associationId }}
+              associationArn: {{ $atp.associationArn }}
+            {{- end }}
+            `}}
+    - step: update-readiness
+      functionRef:
+        name: crossplane-contrib-function-auto-ready
