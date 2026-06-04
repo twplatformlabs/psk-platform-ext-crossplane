@@ -1,0 +1,50 @@
+---
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata:
+  name: s3bucketforsas.platform.psk.io
+spec:
+  scope: Namespaced
+  group: platform.psk.io
+  names:
+    kind: S3BucketForSAs
+    plural: s3bucketforsas
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - serviceAccountName
+              properties:
+                serviceAccountName:
+                  type: string
+                  description: ServiceAccount in THIS namespace granted access. The bucket's namespace is the XR's namespace - there is intentionally no namespace field.
+                access:
+                  type: string
+                  enum: [read, readwrite, readwritedelete]
+                  default: readwritedelete
+                  description: Object access level granted to the service account.
+                versioning:
+                  type: boolean
+                  default: false
+                expireAfterDays:
+                  type: integer
+                  description: Optional lifecycle expiration backstop (days).
+                  default: 3
+            status:
+              type: object
+              properties:
+                bucketName:
+                  type: string
+                bucketArn:
+                  type: string
+                roleArn:
+                  type: string
+                associationId:
+                  type: string
