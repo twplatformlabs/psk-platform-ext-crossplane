@@ -19,7 +19,8 @@ bats test/crossplane-service-check.bats
 # Files that will be applied
 TEST_FILES=("test/crossplane-provider-validation/fixture-iam-provider.yaml" \
             "test/crossplane-provider-validation/fixture-eks-provider.yaml" \
-            "test/crossplane-platform-features-validation/fixture-xrd-pod-identity-association.yaml")
+            "test/crossplane-platform-features-validation/fixture-xrd-pod-identity-association.yaml" \
+            "test/crossplane-platform-features-validation/fixture-xrd-s3bucket.yaml")
 
 cleanup() {
   echo "Deleting test files..."
