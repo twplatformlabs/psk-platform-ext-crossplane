@@ -1,22 +1,5 @@
 #!/usr/bin/env bats
 
-setup() {
-  if [[ -z "${CLUSTER_NAME}" ]]; then
-    echo "ERROR: CLUSTER_NAME environment variable is not set"
-    echo "Example:"
-    echo "  CLUSTER_NAME=sbx-i01-aws-us-east-1 bats tests.bats"
-    exit 1
-  fi
-  if [[ -z "${AWS_REGION}" ]]; then
-    echo "ERROR: AWS_REGION environment variable is not set"
-    echo "Example:"
-    echo "  AWS_REGION=us-east-1 bats tests.bats"
-    exit 1
-  fi
-  export BUCKET="$(kubectl get s3bucket "$XR_NAME" -n "$NAMESPACE" -o jsonpath='{.status.bucketName}')"
-}
-
-
 # PodIdentityAssociation.platform.psk.io resource status
 @test "PodIdentityAssociation.platform.psk.io synced" {
   run bash -c "kubectl get PodIdentityAssociation.platform.psk.io test-pod-identity-xrd -n default -o jsonpath='{.status.conditions[?(@.type==\"Synced\")].status}'"
