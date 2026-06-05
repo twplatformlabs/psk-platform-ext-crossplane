@@ -1,0 +1,11 @@
+---
+apiVersion: platform.psk.io/v1alpha1
+kind: EfsPvc
+metadata:
+  name: test-xrd-efs-pvc
+  namespace: default
+spec:
+  pvcName: test-xrd-efs-pvc
+  storage: 2Gi
+  accessModes:
+    - ReadWriteMany

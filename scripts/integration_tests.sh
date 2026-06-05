@@ -20,7 +20,8 @@ bats test/crossplane-service-check.bats
 TEST_FILES=("test/crossplane-provider-validation/fixture-iam-provider.yaml" \
             "test/crossplane-provider-validation/fixture-eks-provider.yaml" \
             "test/crossplane-platform-features-validation/fixture-xrd-pod-identity-association.yaml" \
-            "test/crossplane-platform-features-validation/fixture-xrd-s3bucket.yaml")
+            "test/crossplane-platform-features-validation/fixture-xrd-s3bucket.yaml" \
+            "test/crossplane-platform-features-validation/fixture-xrd-efs-pvc.yaml")
 
 cleanup() {
   echo "Deleting test files..."
@@ -58,6 +59,7 @@ kubectl apply -f test/crossplane-provider-validation/fixture-eks-provider.yaml
 # deploy platform feature composition tests
 kubectl apply -f test/crossplane-platform-features-validation/fixture-xrd-pod-identity-association.yaml
 kubectl apply -f test/crossplane-platform-features-validation/fixture-xrd-s3bucket.yaml
+kubectl apply -f test/crossplane-platform-features-validation/fixture-xrd-efs-pvc.yaml
 sleep 240
 
 # run k8s resource validation

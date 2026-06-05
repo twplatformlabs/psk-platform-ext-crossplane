@@ -1,0 +1,81 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: efspvcs
+spec:
+  compositeTypeRef:
+    apiVersion: platform.psk.io/v1alpha1
+    kind: EfsPvc
+  mode: Pipeline
+  pipeline:
+    - step: fetch-cluster-info
+      functionRef:
+        name: crossplane-contrib-function-extra-resources
+      input:
+        apiVersion: extra-resources.fn.crossplane.io/v1beta1
+        kind: Input
+        spec:
+          extraResources:
+            - kind: ConfigMap
+              apiVersion: v1
+              into: clusterInfo
+              namespace: default
+              type: Selector
+              selector:
+                maxMatch: 1
+                minMatch: 1
+                matchLabels:
+                  - key: platform.psk.io/config
+                    type: Value
+                    value: cluster-info
+    - step: render-resources
+      functionRef:
+        name: crossplane-contrib-function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |
+            {{`
+            {{- $cm := index .context "apiextensions.crossplane.io/extra-resources" "clusterInfo" 0 -}}
+            {{- $clusterName := index $cm.data "clusterName" -}}
+            {{- $ns := .observed.composite.resource.metadata.namespace -}}
+            {{- $xrName := .observed.composite.resource.metadata.name -}}
+            {{- $pvcName := .observed.composite.resource.spec.pvcName -}}
+            {{- $storage := .observed.composite.resource.spec.storage | default "2Gi" -}}
+            {{- $accessModes := .observed.composite.resource.spec.accessModes | default (list "ReadWriteMany") -}}
+            {{- $storageClassName := printf "%s-efs-csi-dynamic-storage" $clusterName -}}
+            ---
+            apiVersion: v1
+            kind: PersistentVolumeClaim
+            metadata:
+              name: {{ $pvcName }}
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: efs-pvc
+            spec:
+              accessModes:
+                {{- range $accessModes }}
+                - {{ . }}
+                {{- end }}
+              storageClassName: {{ $storageClassName }}
+              resources:
+                requests:
+                  storage: {{ $storage }}
+            ---
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: {{ $xrName }}-efs-config
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: efs-config-map
+            data:
+              pvcName: {{ $pvcName }}
+              storageClassName: {{ $storageClassName }}
+            `}}
+    - step: update-readiness
+      functionRef:
+        name: crossplane-contrib-function-auto-ready

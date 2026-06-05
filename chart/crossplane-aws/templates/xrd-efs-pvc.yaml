@@ -1,0 +1,52 @@
+---
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata:
+  name: efspvcs.platform.psk.io
+spec:
+  scope: Namespaced
+  group: platform.psk.io
+  names:
+    kind: EfsPvc
+    plural: efspvcs
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - pvcName
+              properties:
+                pvcName:
+                  type: string
+                  description: >
+                    The name to give the emitted PersistentVolumeClaim.
+                    Must be unique within the namespace. Consumers reference
+                    this name directly via existingClaim or equivalent.
+                storage:
+                  type: string
+                  default: "2Gi"
+                  description: >
+                    Storage request size. Cosmetic for EFS (elastic, no cap)
+                    but required to satisfy the PVC API spec.
+                accessModes:
+                  type: array
+                  items:
+                    type: string
+                  default:
+                    - ReadWriteMany
+                  description: >
+                    PVC access modes. Defaults to ReadWriteMany, which is
+                    required for EFS and cross-AZ pod mobility.
+            status:
+              type: object
+              properties:
+                pvcName:
+                  type: string
+                storageClassName:
+                  type: string
