@@ -111,6 +111,9 @@ The post-deployment functional testing obviously needs to run against specific c
 
 ### release versioning  
 
+[chart vervsion][feature version]  
+[x.x.x][.xxxx]  
+
 In general the individual services or extensions managed through the distributed cluster configuration management via ARgoCD Core, will have release versions that map 1-to-1 with the chart version being deployed. For extensions that can additional customization as part of providing capabiltiies to the user (e.g., Istio, Crossplane, and so on), each sucessive update will use a trailing 4-digit semantic addition to indicate the release versions changes to those additional configurations.  
 
 In the case of Crossplane, the helm chart version could be 2.3.1 and this may the 18th release of the compositions and XRDs made available to platform Users - in which case the release version for this pipeline to production would be 2.3.1.0018  
