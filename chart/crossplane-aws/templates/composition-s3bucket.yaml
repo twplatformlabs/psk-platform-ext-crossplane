@@ -244,6 +244,17 @@ spec:
               associationId: {{ $atp.associationId }}
               associationArn: {{ $atp.associationArn }}
             {{- end }}
+            ---
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: {{ $xrName }}-s3-config
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: s3-config-map
+            data:
+              bucketName: {{ $bucket }}
+              region: {{ $region }}
             `}}
     - step: update-readiness
       functionRef:
