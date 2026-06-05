@@ -54,13 +54,11 @@ spec:
 EOF
 cat test/crossplane-provider-validation/fixture-eks-provider.yaml
 kubectl apply -f test/crossplane-provider-validation/fixture-eks-provider.yaml
-sleep 15
 
-# validate platform feature compositions
-# eks-pod-identities
+# deploy platform feature composition tests
 kubectl apply -f test/crossplane-platform-features-validation/fixture-xrd-pod-identity-association.yaml
 kubectl apply -f test/crossplane-platform-features-validation/fixture-xrd-s3bucket.yaml
-sleep 60
+sleep 240
 
 # run k8s resource validation
 bats test/crossplane-provider-validation/resource-validation.bats
