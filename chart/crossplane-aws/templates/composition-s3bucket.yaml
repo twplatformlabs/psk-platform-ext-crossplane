@@ -49,6 +49,7 @@ spec:
             {{- $access := .observed.composite.resource.spec.access | default "readwritedelete" -}}
             {{- $hash := .observed.composite.resource.metadata.uid | sha256sum | trunc 8 -}}
             {{- $bucket := printf "%s-%s-%s-%s" $clusterShort $ns $sa $hash | lower | trunc 63 | trimSuffix "-" -}}
+            {{- $awsName := printf "%s-%s-%s-%s" $clusterShort $ns $xrName $hash | lower | trunc 63 | trimSuffix "-" -}}
             {{- $expire := .observed.composite.resource.spec.expireAfterDays | default 3 -}}
             {{- $obs := .observed.resources | default dict -}}
             {{- $roleArn := dig "role" "resource" "status" "atProvider" "arn" "" $obs -}}
@@ -175,7 +176,7 @@ spec:
             apiVersion: iam.aws.m.upbound.io/v1beta1
             kind: Role
             metadata:
-              name: {{ $xrName }}
+              name: {{ $awsName }}
               namespace: {{ $ns }}
               annotations:
                 gotemplating.fn.crossplane.io/composition-resource-name: role
@@ -189,7 +190,7 @@ spec:
             apiVersion: iam.aws.m.upbound.io/v1beta1
             kind: Policy
             metadata:
-              name: {{ $xrName }}
+              name: {{ $awsName }}
               namespace: {{ $ns }}
               annotations:
                 gotemplating.fn.crossplane.io/composition-resource-name: policy
@@ -203,17 +204,17 @@ spec:
             apiVersion: iam.aws.m.upbound.io/v1beta1
             kind: RolePolicyAttachment
             metadata:
-              name: {{ $xrName }}
+              name: {{ $awsName }}
               namespace: {{ $ns }}
               annotations:
                 gotemplating.fn.crossplane.io/composition-resource-name: role-policy-attachment
             spec:
               forProvider:
                 roleRef:
-                  name: {{ $xrName }}
+                  name: {{ $awsName }}
                   namespace: {{ $ns }}
                 policyArnRef:
-                  name: {{ $xrName }}
+                  name: {{ $awsName }}
                   namespace: {{ $ns }}
               providerConfigRef:
                 kind: ClusterProviderConfig
@@ -222,14 +223,14 @@ spec:
             apiVersion: platform.psk.io/v1alpha1
             kind: PodIdentityAssociation
             metadata:
-              name: {{ $xrName }}
+              name: {{ $awsName }}
               namespace: {{ $ns }}
               annotations:
                 gotemplating.fn.crossplane.io/composition-resource-name: pod-identity-association
             spec:
               serviceAccountName: {{ $sa }}
               serviceAccountNamespace: {{ $ns }}
-              roleName: {{ $xrName }}
+              roleName: {{ $awsName }}
               roleNamespace: {{ $ns }}
             {{- $pobs := .observed.resources | default dict -}}
             {{- $atp := dig "pod-identity-association" "resource" "status" "atProvider" dict $pobs -}}
