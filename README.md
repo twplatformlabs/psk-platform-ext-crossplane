@@ -86,7 +86,6 @@ As initially installed, crossplane is restricted from use to only cluster-admini
 _pending_  
 
 ## maintainers
-
 ### providers
 to add a provider or function, modify the aws-default-values.yaml in the local `deploy-templates` folder.  
 ```yaml
