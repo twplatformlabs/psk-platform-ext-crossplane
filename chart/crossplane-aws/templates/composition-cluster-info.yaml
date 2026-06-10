@@ -2,10 +2,10 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: clusterinfo-copy
+  name: cluster-info
 spec:
   compositeTypeRef:
-    apiVersion: platform.example.org/v1alpha1
+    apiVersion: platform.psk.io/v1alpha1
     kind: ClusterInfo
   mode: Pipeline
   pipeline:
@@ -23,7 +23,7 @@ spec:
               spec:
                 providerConfigRef:
                   kind: ClusterProviderConfig
-                  name: default
+                  name: kubernetes
                 references:
                   - patchesFrom:
                       apiVersion: v1

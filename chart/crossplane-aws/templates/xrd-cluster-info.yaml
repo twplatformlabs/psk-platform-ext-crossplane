@@ -1,10 +1,10 @@
 apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
-  name: clusterinfos.platform.example.org
+  name: clusterinfos.platform.psk.io
 spec:
   scope: Namespaced
-  group: platform.example.org
+  group: platform.psk.io
   names:
     kind: ClusterInfo
     plural: clusterinfos
