@@ -1,0 +1,52 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: clusterinfo-copy
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.org/v1alpha1
+    kind: ClusterInfo
+  mode: Pipeline
+  pipeline:
+    - step: patch-and-transform
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: configmap-copy
+            base:
+              apiVersion: kubernetes.m.crossplane.io/v1beta1
+              kind: Object
+              spec:
+                providerConfigRef:
+                  kind: ClusterProviderConfig
+                  name: default
+                references:
+                  - patchesFrom:
+                      apiVersion: v1
+                      kind: ConfigMap
+                      namespace: default
+                      name: cluster-info
+                      fieldPath: data
+                    toFieldPath: data
+                forProvider:
+                  manifest:
+                    apiVersion: v1
+                    kind: ConfigMap
+                    metadata:
+                      name: cluster-info
+            patches:
+              # put the copied ConfigMap in the XR's own namespace
+              - type: FromCompositeFieldPath
+                fromFieldPath: metadata.namespace
+                toFieldPath: spec.forProvider.manifest.metadata.namespace
+              # (optional) honor the configurable source from the XR spec
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.sourceNamespace
+                toFieldPath: spec.references[0].patchesFrom.namespace
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.sourceName
+                toFieldPath: spec.references[0].patchesFrom.name
