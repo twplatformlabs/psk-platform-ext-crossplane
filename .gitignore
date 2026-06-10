@@ -4,5 +4,6 @@ deploy-files/
 test/*.yaml
 notes.yaml
 source.env
+temp.yaml
 del-resource.sh
 test/crossplane-provider-validation/fixture-eks-provider.yaml
