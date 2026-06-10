@@ -1,0 +1,62 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: cluster-info
+spec:
+  compositeTypeRef:
+    apiVersion: platform.psk.io/v1alpha1
+    kind: ClusterInfo
+  mode: Pipeline
+  pipeline:
+    - step: fetch-cluster-info
+      functionRef:
+        name: crossplane-contrib-function-extra-resources
+      input:
+        apiVersion: extra-resources.fn.crossplane.io/v1beta1
+        kind: Input
+        spec:
+          extraResources:
+            - kind: ConfigMap
+              apiVersion: v1
+              into: clusterInfo
+              namespace: default
+              type: Selector
+              selector:
+                maxMatch: 1
+                minMatch: 1
+                matchLabels:
+                  - key: platform.psk.io/config
+                    type: Value
+                    value: cluster-info
+    - step: render-resources
+      functionRef:
+        name: crossplane-contrib-function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |
+            {{`
+            {{- $cm := index .context "apiextensions.crossplane.io/extra-resources" "clusterInfo" 0 -}}
+            {{- $clusterName := index $cm.data "clusterName" -}}
+            {{- $region := index $cm.data "region" -}}
+            {{- $accountId := index $cm.data "accountId" -}}
+            {{- $ns := .observed.composite.resource.metadata.namespace -}}
+            {{- $xrName := .observed.composite.resource.metadata.name -}}
+            ---
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: cluster-info
+              namespace: {{ $ns }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: efs-config-map
+            data:
+              pvcName: {{ $pvcName }}
+              storageClassName: {{ $storageClassName }}
+            `}}
+    - step: update-readiness
+      functionRef:
+        name: crossplane-contrib-function-auto-ready
