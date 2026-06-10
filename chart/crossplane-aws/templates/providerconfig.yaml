@@ -15,3 +15,12 @@ metadata:
 spec:
   credentials:
     source: PodIdentity
+
+---
+apiVersion: kubernetes.m.crossplane.io/v1beta1
+kind: ClusterProviderConfig
+metadata:
+  name: kubernetes
+spec:
+  credentials:
+    source: InjectedIdentity
