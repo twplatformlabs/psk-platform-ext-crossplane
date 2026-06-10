@@ -9,7 +9,7 @@ providers:
     - xpkg.upbound.io/upbound/provider-aws-eks:v2.5.3
   packagesaddassociations:
     - xpkg.upbound.io/upbound/provider-aws-s3:v2.5.3
-    - xpkg.crossplane.io/crossplane-contrib/provider-kubernetes:v1.2.5
+    - xpkg.crossplane.io/crossplane-contrib/provider-kubernetes:v1.2.1
 
 functions:
   packages:
