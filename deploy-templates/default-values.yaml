@@ -242,7 +242,7 @@ extraObjects:
       name: crossplane
       namespace: crossplane-system
     spec:
-      minAvailable: 1
+      maxUnavailable: 1
       selector:
         matchLabels:
           app: crossplane
@@ -252,7 +252,7 @@ extraObjects:
       name: crossplane-rbac-manager
       namespace: crossplane-system
     spec:
-      minAvailable: 1
+      maxUnavailable: 1
       selector:
         matchLabels:
           app: crossplane-rbac-manager
