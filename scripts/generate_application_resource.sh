@@ -5,6 +5,7 @@ source bash-functions.sh
 cluster_role=$1
 
 crossplane_chart_version=$(jq -er .crossplane_chart_version environments/$cluster_role.json)
+custom_chart_version=$(jq -er .custom_chart_version environments/$cluster_role.json)
 argocd_namespace=$(jq -er .argocd_namespace environments/$cluster_role.json)
 
 # perform trivy scan of chart with role configuration.
@@ -15,6 +16,7 @@ trivyScan "crossplane/crossplane" "crossplane" "$crossplane_chart_version" "depl
 
 echo "Application resource and configuration files for crossplane"
 echo "crossplane chart version: $crossplane_chart_version"
+echo "custom aws resource chart version: $custom_chart_version"
 echo "creating deploy-files directory for all the files that will written to psk-platform-control-plane-configuration repository"
 mkdir deploy-files
 mkdir deploy-files/crossplane
@@ -87,10 +89,11 @@ spec:
   sources:
     - repoURL: https://github.com/twplatformlabs/psk-platform-ext-crossplane
       path: chart/crossplane-aws
-      targetRevision: HEAD
+      targetRevision: $custom_chart_version
       helm:
         valueFiles:
           - \$config/roles/$cluster_role/crossplane-aws/aws-default-values.yaml
+          - \$config/roles/$cluster_role/crossplane-aws/aws-$cluster_role-values.yaml
     - repoURL: https://github.com/twplatformlabs/psk-aws-control-plane-configuration
       targetRevision: HEAD
       ref: config
@@ -113,7 +116,8 @@ spec:
 EOF
 cat deploy-files/crossplane-aws/application.yaml
 
-echo "copying default values"
+echo "copying crossplane and custom aws values"
 cp -v deploy-templates/default-values.yaml deploy-files/crossplane/default-values.yaml
 cp -v deploy-templates/$cluster_role-values.yaml deploy-files/crossplane/$cluster_role-values.yaml
 cp -v deploy-templates/aws-default-values.yaml deploy-files/crossplane-aws/aws-default-values.yaml
+cp -v deploy-templates/aws-default-values.yaml deploy-files/crossplane-aws/aws-$cluster_role-values.yaml
