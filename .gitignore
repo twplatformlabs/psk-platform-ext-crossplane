@@ -1,4 +1,4 @@
-kubeconfig
+kubeconfig*
 deploy-templates/application.yaml
 deploy-files/
 test/*.yaml
