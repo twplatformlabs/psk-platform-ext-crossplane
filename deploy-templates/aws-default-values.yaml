@@ -1,3 +1,8 @@
 nameOverride: ""
 fullnameOverride: ""
 namespace: crossplane-system
+providers:
+  packages: []
+  packagesaddassociations: []
+functions:
+  packages: []
