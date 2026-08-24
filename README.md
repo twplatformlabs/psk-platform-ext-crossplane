@@ -121,16 +121,8 @@ In the case of Crossplane, the helm chart version could be 2.3.1 and this may th
 
 
 aws provider versions
-2.5.5
+-2.5.5
 2.6.0
 2.7.0
 2.7.1
 
-
-kubernetes-provider 1.3.1
-
-  packages:
-    - xpkg.upbound.io/crossplane-contrib/function-patch-and-transform:v0.10.4   - 0.10.9
-    - xpkg.upbound.io/crossplane-contrib/function-go-templating:v0.12.0         - 0.12.3
-    - xpkg.crossplane.io/crossplane-contrib/function-extra-resources:v0.3.0
-    - xpkg.crossplane.io/crossplane-contrib/function-auto-ready:v0.6.5          - 0.6.7
