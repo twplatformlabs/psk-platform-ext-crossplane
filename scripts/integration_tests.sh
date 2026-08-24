@@ -10,7 +10,7 @@ region=$(jq -er .aws_region environments/$cluster_role.json)
 
 # confirm new version has been synced
 # rolling update requires some time
-sleep 240
+sleep 300
 validate_argocore_helm_app_resource "$argocd_namespace" "crossplane" "$crossplane_chart_version"
 
 # run basic smoketest for crossplane operator and provider health
