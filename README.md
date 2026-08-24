@@ -116,3 +116,21 @@ The post-deployment functional testing obviously needs to run against specific c
 In general the individual services or extensions managed through the distributed cluster configuration management via ARgoCD Core, will have release versions that map 1-to-1 with the chart version being deployed. For extensions that can additional customization as part of providing capabiltiies to the user (e.g., Istio, Crossplane, and so on), each sucessive update will use a trailing 4-digit semantic addition to indicate the release versions changes to those additional configurations.  
 
 In the case of Crossplane, the helm chart version could be 2.3.1 and this may the 18th release of the compositions and XRDs made available to platform Users - in which case the release version for this pipeline to production would be 2.3.1.0018  
+
+2.3.5
+
+
+aws provider versions
+2.5.5
+2.6.0
+2.7.0
+2.7.1
+
+
+kubernetes-provider 1.3.1
+
+  packages:
+    - xpkg.upbound.io/crossplane-contrib/function-patch-and-transform:v0.10.4   - 0.10.9
+    - xpkg.upbound.io/crossplane-contrib/function-go-templating:v0.12.0         - 0.12.3
+    - xpkg.crossplane.io/crossplane-contrib/function-extra-resources:v0.3.0
+    - xpkg.crossplane.io/crossplane-contrib/function-auto-ready:v0.6.5          - 0.6.7

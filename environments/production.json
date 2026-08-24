@@ -1,6 +1,6 @@
 {
-  "custom_chart_version": "2.3.1.0023",
-  "crossplane_chart_version": "2.3.1",
+  "custom_chart_version": "2.3.5.0000",
+  "crossplane_chart_version": "2.3.5",
   "argocd_namespace": "psk-system",
   "aws_region": "us-east-2"
 }
