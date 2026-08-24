@@ -117,12 +117,12 @@ In general the individual services or extensions managed through the distributed
 
 In the case of Crossplane, the helm chart version could be 2.3.1 and this may the 18th release of the compositions and XRDs made available to platform Users - in which case the release version for this pipeline to production would be 2.3.1.0018  
 
-2.3.5
-
+-2.3.5
+2.4.0
 
 aws provider versions
 -2.5.5
-2.6.0
+-2.6.0
 2.7.0
 2.7.1
 
