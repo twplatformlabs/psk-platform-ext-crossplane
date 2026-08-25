@@ -1,0 +1,71 @@
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata:
+  name: roles.iam.platform.psk.io
+spec:
+  scope: Namespaced
+  group: iam.platform.psk.io
+  names:
+    kind: Role
+    plural: roles
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - roleName
+                - rolePolicy
+              properties:
+                roleName:
+                  type: string
+                  maxLength: 64
+                  pattern: '^[a-zA-Z0-9+=,.@_-]+$'
+                  description: >-
+                    Logical role name. The actual AWS IAM role name will be
+                    "<cluster-name>-<roleName>" to guarantee uniqueness across
+                    clusters sharing this account.
+                rolePolicy:
+                  type: string
+                  maxLength: 16384
+                  description: >-
+                    Raw IAM policy JSON document to attach to the role as an
+                    inline RolePolicy.
+                trustPolicy:
+                  type: string
+                  maxLength: 8192
+                  description: >-
+                    Optional raw IAM trust policy (assumeRolePolicy) JSON.
+                    Defaults to an EKS Pod Identity trust policy
+                    (pods.eks.amazonaws.com) if omitted.
+                tags:
+                  type: object
+                  additionalProperties:
+                    type: string
+                  description: Additional AWS tags to apply to the role.
+            status:
+              type: object
+              properties:
+                roleName:
+                  type: string
+                  description: The actual AWS IAM role name (cluster-name prefixed).
+                roleArn:
+                  type: string
+                  description: ARN of the created IAM role.
+                clusterName:
+                  type: string
+      additionalPrinterColumns:
+        - name: ROLE-NAME
+          type: string
+          jsonPath: .status.roleName
+        - name: ROLE-ARN
+          type: string
+          jsonPath: .status.roleArn
+        - name: READY
+          type: string
+          jsonPath: ".status.conditions[?(@.type=='Ready')].status"

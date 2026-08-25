@@ -1,0 +1,114 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: role
+spec:
+  compositeTypeRef:
+    apiVersion: iam.platform.psk.io/v1alpha1
+    kind: Role
+  mode: Pipeline
+  pipeline:
+    - step: fetch-cluster-info
+      functionRef:
+        name: crossplane-contrib-function-extra-resources
+      input:
+        apiVersion: extra-resources.fn.crossplane.io/v1beta1
+        kind: Input
+        spec:
+          extraResources:
+            - kind: ConfigMap
+              apiVersion: v1
+              into: clusterInfo
+              namespace: default
+              type: Selector
+              selector:
+                maxMatch: 1
+                minMatch: 1
+                matchLabels:
+                  - key: platform.psk.io/config
+                    type: Value
+                    value: cluster-info
+    - step: render-resources
+      functionRef:
+        name: crossplane-contrib-function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |
+            {{- $xr := .observed.composite.resource }}
+            {{- $params := $xr.spec }}
+            {{- if not $params.rolePolicy }}
+              {{ fail "spec.rolePolicy is required but was empty or missing on the XR" }}
+            {{- end }}
+            {{- /* real JSON syntax validation — fails the pipeline with a clear error if malformed */ -}}
+            {{- $_ := $params.rolePolicy | mustFromJson }}
+            {{- if $params.trustPolicy }}
+            {{- $_ := $params.trustPolicy | mustFromJson }}
+            {{- end }}
+            {{- $logicalName := $params.roleName }}
+
+            {{- $cm := index .context "apiextensions.crossplane.io/extra-resources" "clusterInfo" 0 -}}
+            {{- $clusterName := index $cm.data "clusterName" -}}
+
+            {{- $awsRoleName := printf "%s-%s" $clusterName $logicalName }}
+
+            {{- $defaultTrustPolicy := `{
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "AllowEksPodIdentity",
+                  "Effect": "Allow",
+                  "Principal": { "Service": "pods.eks.amazonaws.com" },
+                  "Action": ["sts:AssumeRole", "sts:TagSession"]
+                }
+              ]
+            }` }}
+            {{- $trustPolicy := $defaultTrustPolicy }}
+            {{- if $params.trustPolicy }}
+              {{- $trustPolicy = $params.trustPolicy }}
+            {{- end }}
+
+            ---
+            apiVersion: iam.aws.m.upbound.io/v1beta1
+            kind: Role
+            metadata:
+              name: {{ printf "%s" $logicalName }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: role
+                crossplane.io/external-name: {{ $awsRoleName }}
+            spec:
+              forProvider:
+                description: {{ printf "Role %s (cluster: %s), managed by Crossplane" $logicalName $clusterName | quote }}
+                assumeRolePolicy: {{ $trustPolicy | quote }}
+                tags:
+                  ManagedBy: crossplane
+                  ClusterName: {{ $clusterName }}
+                  LogicalName: {{ $logicalName }}
+                  {{- if $params.tags }}
+                  {{- range $k, $v := $params.tags }}
+                  {{ $k }}: {{ $v | quote }}
+                  {{- end }}
+                  {{- end }}
+              providerConfigRef:
+                kind: ClusterProviderConfig
+                name: aws
+
+            ---
+            apiVersion: iam.aws.m.upbound.io/v1beta1
+            kind: RolePolicy
+            metadata:
+              name: {{ printf "%s-policy" $logicalName }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: role-policy
+            spec:
+              forProvider:
+                role: {{ $awsRoleName }}
+                policy: {{ $params.rolePolicy | quote }}
+              providerConfigRef:
+                kind: ClusterProviderConfig
+                name: aws
+    - step: update-readiness
+      functionRef:
+        name: crossplane-contrib-function-auto-ready
