@@ -55,17 +55,14 @@ spec:
 
             {{- $awsRoleName := printf "%s-%s" $clusterName $logicalName }}
 
-            {{- $defaultTrustPolicy := `{
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Sid": "AllowEksPodIdentity",
-                  "Effect": "Allow",
-                  "Principal": { "Service": "pods.eks.amazonaws.com" },
-                  "Action": ["sts:AssumeRole", "sts:TagSession"]
-                }
-              ]
-            }` }}
+            {{- $defaultTrustPolicy := dict
+              "Version" "2012-10-17"
+              "Statement" (list (dict
+                "Sid" "AllowEksPodIdentity"
+                "Effect" "Allow"
+                "Principal" (dict "Service" "pods.eks.amazonaws.com")
+                "Action" (list "sts:AssumeRole" "sts:TagSession")
+              )) | mustToJson }}
             {{- $trustPolicy := $defaultTrustPolicy }}
             {{- if $params.trustPolicy }}
               {{- $trustPolicy = $params.trustPolicy }}
