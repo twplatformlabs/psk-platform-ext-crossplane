@@ -37,6 +37,7 @@ spec:
         source: Inline
         inline:
           template: |
+            {{`
             {{- $xr := .observed.composite.resource }}
             {{- $params := $xr.spec }}
             {{- if not $params.rolePolicy }}
@@ -109,6 +110,7 @@ spec:
               providerConfigRef:
                 kind: ClusterProviderConfig
                 name: aws
+            `}}
     - step: update-readiness
       functionRef:
         name: crossplane-contrib-function-auto-ready
